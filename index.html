@@ -434,8 +434,8 @@ const MODEL = 'gemini-2.5-flash';
 const API_URL = k => 'https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+k;
 
 // ★ 파일에 키를 저장하려면 saveToFile 버튼으로 자동 갱신
-const SAVED_KEYS = []; // 무료 키 목록
-const SAVED_PAID_KEY = ''; // 유료 키
+const SAVED_KEYS = []; // 키는 사이트에서 직접 입력하세요 // 무료 키 목록
+const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요 // 유료 키
 
 let _keys = [], _ki = 0;
 let _paidKey = '';
@@ -644,9 +644,9 @@ function updateBadge(){
 function saveToFile(){
   var content=document.documentElement.outerHTML;
   // 무료 키 저장
-  content=content.replace("const SAVED_KEYS = [];","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
+  content=content.replace("const SAVED_KEYS = []; // 키는 사이트에서 직접 입력하세요","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
   // 유료 키 저장
-  content=content.replace("const SAVED_PAID_KEY = '';","const SAVED_PAID_KEY = '"+_paidKey+"';");
+  content=content.replace("const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요","const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요");
   var blob=new Blob([content],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');

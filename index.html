@@ -186,9 +186,39 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
     </div>
     <div class="field"><label>상담 주제</label>
       <select id="cTopic">
-        <option>연애운</option><option>결혼운</option><option>재물운</option><option>직업/사업운</option>
-        <option>건강운</option><option>가족관계</option><option>이사/이직</option><option>종합운</option><option>타로만</option>
+        <option>재회운 ⭐</option><option>연애운</option><option>속마음 확인</option><option>짝사랑/고백</option><option>결혼운/결혼시기</option><option>궁합</option><option>재물/돈버는시기</option><option>직업/사업운</option><option>이직/취업</option><option>건강운</option><option>가족관계</option><option>이사시기</option><option>합격운</option><option>종합운</option>
       </select>
+    </div>
+    <!-- 상대방 정보 -->
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="partnerToggle" onchange="togglePartner()" style="width:auto;margin:0">
+        상대방 정보 추가 (재회/연애/궁합 상담 시)
+      </label>
+    </div>
+    <div id="partnerSection" style="display:none;background:#0d0d14;border:1px solid var(--purple);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="card-title" style="font-size:.78rem;margin-bottom:10px;color:var(--purple2)">💜 상대방 정보</div>
+      <div class="field"><label>상대방 이름/닉네임</label><input id="pName" placeholder="예) 전남친, 홍길동"></div>
+      <div class="row2">
+        <div class="field"><label>성별</label>
+          <select id="pGender"><option value="남성">남성</option><option value="여성">여성</option></select>
+        </div>
+        <div class="field"><label>양/음력</label>
+          <select id="pLunar"><option>양력</option><option>음력</option></select>
+        </div>
+      </div>
+      <div class="field"><label>생년월일 (모르면 비워도 됨)</label><input id="pBirth" type="date"></div>
+      <div class="field"><label>현재 관계</label>
+        <select id="pRelation">
+          <option>헤어진 사이 (재회 원함)</option>
+          <option>썸 타는 중</option>
+          <option>짝사랑 중</option>
+          <option>현재 연인</option>
+          <option>결혼 고려 중</option>
+          <option>이별 후 연락 없음</option>
+          <option>카톡/연락은 됨</option>
+        </select>
+      </div>
     </div>
     <div class="field"><label>질문 / 고민 (선택)</label>
       <textarea id="cQ" placeholder="내담자님이 하신 말씀이나 구체적인 질문을 적어주세요..."></textarea>
@@ -217,6 +247,16 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
     </div>
 
     <button class="btn btn-gold" id="startBtn" onclick="startConsulting()" style="margin-top:6px">✦ 상담 시작</button>
+  </div>
+
+  <!-- 고객 저장 -->
+  <div class="card" id="saveCard" style="display:none">
+    <div class="card-title">💾 고객 저장</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="saveClient()">💾 저장</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleClientList()">📋 목록 보기</button>
+    </div>
+    <div id="clientList" style="display:none;margin-top:12px;max-height:200px;overflow-y:auto"></div>
   </div>
 
   <!-- 결과 -->
@@ -297,6 +337,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
     <!-- 카테고리 -->
     <div class="why-cats">
       <div class="wcat on" onclick="setWcat(this,'fortune')">🌙 운세/기운</div>
+      <div class="wcat" onclick="setWcat(this,'reunion')">💔 재회/이별</div>
       <div class="wcat" onclick="setWcat(this,'love')">❤️ 연애/결혼</div>
       <div class="wcat" onclick="setWcat(this,'money')">💰 재물/직업</div>
       <div class="wcat" onclick="setWcat(this,'tarot')">🔮 타로</div>
@@ -567,6 +608,18 @@ async function startConsulting(){
     snack('카드를 먼저 뽑아주세요.'); return;
   }
 
+  // 상대방 정보 수집
+  let partnerInfo = '';
+  if(document.getElementById('partnerToggle').checked){
+    const pName = document.getElementById('pName').value.trim();
+    const pGender = document.getElementById('pGender').value;
+    const pBirth = document.getElementById('pBirth').value;
+    const pRelation = document.getElementById('pRelation').value;
+    if(pName || pBirth){
+      partnerInfo = `\n상대방: ${pName||'미상'}(${pGender}) ${pBirth||'생년미상'} / 현재관계: ${pRelation}`;
+    }
+  }
+
   const btn = document.getElementById('startBtn');
   btn.disabled = true; btn.textContent = '분석 중...';
   document.getElementById('consultResult').innerHTML = `<div class="card"><div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div>천운이 분석 중입니다...</div></div>`;
@@ -592,6 +645,7 @@ async function startConsulting(){
     document.getElementById('chatBox').innerHTML = '';
     document.getElementById('consultChat').style.display = 'block';
     snack('분석 완료! 💬 추가 질문 가능');
+    document.getElementById('saveCard').style.display='block';
   } catch(e){
     document.getElementById('consultResult').innerHTML = `<div class="card" style="color:var(--red)">오류: ${e.message}</div>`;
   }
@@ -608,7 +662,7 @@ function buildSajuPrompt(name, gender, birth, hour, topic, q){
 
 ━━━ 내담자 정보 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hourTxt}
-상담 주제: ${topic}
+상담 주제: ${topic}${partnerInfo}
 질문: ${q||'없음'}
 
 ━━━ 작성 규칙 ━━━
@@ -672,7 +726,7 @@ function buildBothPrompt(name, gender, birth, hour, topic, q){
 
 ━━━ 내담자 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hour||'시간모름'}
-상담 주제: ${topic} / 질문: ${q||'없음'}
+상담 주제: ${topic}${partnerInfo} / 질문: ${q||'없음'}
 타로 카드: ${cardStr}
 
 [말풍선] 태그로 5개 말풍선 작성. 각 2~4문장.
@@ -837,6 +891,20 @@ async function callQ(question){
 let whyCat = 'fortune';
 
 const WHY_QS = {
+  reunion: [
+    '재회가 가능한가요? 언제쯤 될까요?',
+    '헤어진 후 상대방 마음이 어떤가요?',
+    '재회하면 잘 될 수 있을까요?',
+    '먼저 연락해도 될까요?',
+    '상대방이 저를 그리워하고 있나요?',
+    '재회 후 결혼까지 갈 수 있을까요?',
+    '왜 헤어지게 된 건가요? 사주로 보면?',
+    '다른 사람 생겼을까요?',
+    '재회하려면 제가 어떻게 해야 하나요?',
+    '연락을 끊어야 할까요, 계속해야 할까요?',
+    '상대방이 저한테 미련이 있나요?',
+    '재회가 되더라도 오래 갈 수 있을까요?',
+  ],
   fortune: [
     '왜 올해 이렇게 힘든 거예요?',
     '왜 저는 이렇게 안 풀리는 거예요?',
@@ -846,6 +914,12 @@ const WHY_QS = {
     '왜 사주가 잘 맞는 거예요?',
     '왜 올해 변화가 많이 생기는 건가요?',
     '일주가 뭔가요? 왜 중요한가요?',
+    '제 사주에 특이한 게 있나요?',
+    '삼재가 뭔가요? 올해 삼재인가요?',
+    '왜 이 시기가 이렇게 힘든지 사주로 설명해줄 수 있나요?',
+    '앞으로 좋아지는 시기가 언제예요?',
+    '제 팔자가 원래 이런 건가요?',
+    '올해 조심해야 할 게 뭐가 있나요?',
   ],
   love: [
     '왜 저는 연애가 안 되는 거예요?',
@@ -856,6 +930,13 @@ const WHY_QS = {
     '궁합이 안 좋으면 절대 안 되나요?',
     '왜 연애할 때마다 같은 패턴이 반복되나요?',
     '이 사람 마음이 왜 이렇게 안 열리는 거예요?',
+    '상대방 속마음을 알 수 있나요?',
+    '이 사람이 저를 좋아하는 건가요?',
+    '연락이 갑자기 줄었어요. 왜 그런 건가요?',
+    '결혼을 결정해도 될까요?',
+    '이 관계가 어디로 가는 건가요?',
+    '썸인데 왜 고백을 안 하는 거예요?',
+    '바람피우는 건 아닐까요?',
   ],
   money: [
     '왜 열심히 해도 돈이 안 모이나요?',
@@ -865,6 +946,13 @@ const WHY_QS = {
     '왜 돈이 들어와도 나가버리는 거예요?',
     '편재격이 뭔가요? 돈 잘 번다는 건가요?',
     '왜 투자할 때마다 손해를 보는 거예요?',
+    '돈 들어오는 시기가 언제예요?',
+    '지금 사업 시작해도 될까요?',
+    '주식/코인 해도 될까요?',
+    '부동산 투자 타이밍은요?',
+    '취업이 잘 안 되는 이유가 뭔가요?',
+    '이직하면 더 나아질까요?',
+    '합격운이 있나요?',
   ],
   tarot: [
     '왜 타로가 맞는 거예요?',
@@ -875,6 +963,14 @@ const WHY_QS = {
     '죽음 카드나 탑 카드가 나오면 정말 큰일인가요?',
     '카드가 미래를 바꿀 수 있나요?',
     '왜 마음이 달라지면 카드도 달라지나요?',
+    '악마 카드가 나왔는데 무슨 뜻인가요?',
+    '탑 카드가 나왔어요, 정말 무너지는 건가요?',
+    '컵 카드가 많이 나오면 뭔가요?',
+    '완드 카드가 많이 나오면?',
+    '검 카드가 많이 나오면?',
+    '펜타클 카드가 많이 나오면?',
+    '대아르카나랑 소아르카나 차이가 뭐예요?',
+    '정방향이 좋고 역방향이 나쁜 건가요?',
   ]
 };
 
@@ -902,7 +998,7 @@ async function askWhy(question){
   result.style.display = 'block';
   result.innerHTML = `<div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div>답변 만드는 중...</div>`;
 
-  const catNames = {fortune:'운세/기운', love:'연애/결혼', money:'재물/직업', tarot:'타로'};
+  const catNames = {fortune:'운세/기운', reunion:'재회/이별', love:'연애/결혼', money:'재물/직업', tarot:'타로'};
 
   const prompt = `당신은 30년 경력 명리학·타로 전문 상담사 천운입니다.
 내담자가 "${question}" 라고 물었습니다.
@@ -956,9 +1052,89 @@ function copyWhyAll(){
   navigator.clipboard.writeText(toCopy).then(()=>snack('복사됨 ✓'));
 }
 
+// ── 상대방 정보 토글 ──
+function togglePartner(){
+  const on = document.getElementById('partnerToggle').checked;
+  document.getElementById('partnerSection').style.display = on ? 'block' : 'none';
+}
+
+// ── 고객 저장/불러오기 ──
+const CK = 'cheonun_clients_v1';
+
+function saveClient(){
+  const name = document.getElementById('cName').value.trim();
+  if(!name){ snack('이름을 입력해주세요.'); return; }
+  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const newC = {
+    name,
+    gender: document.getElementById('cGender').value,
+    birth: document.getElementById('cBirth').value,
+    hour: document.getElementById('cHour').value,
+    topic: document.getElementById('cTopic').value,
+    q: document.getElementById('cQ').value,
+    savedAt: new Date().toLocaleDateString('ko-KR')
+  };
+  const filtered = clients.filter(c=>c.name!==name);
+  filtered.unshift(newC);
+  if(filtered.length>50) filtered.pop();
+  localStorage.setItem(CK, JSON.stringify(filtered));
+  snack('💾 저장됨: '+name+'님');
+}
+
+function loadClient(idx){
+  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const c = clients[idx];
+  if(!c) return;
+  document.getElementById('cName').value = c.name;
+  document.getElementById('cGender').value = c.gender;
+  document.getElementById('cBirth').value = c.birth||'';
+  document.getElementById('cHour').value = c.hour||'';
+  document.getElementById('cTopic').value = c.topic||'연애운';
+  document.getElementById('cQ').value = c.q||'';
+  document.getElementById('clientList').style.display='none';
+  snack('📂 불러옴: '+c.name+'님');
+}
+
+function deleteClient(idx, e){
+  e.stopPropagation();
+  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  clients.splice(idx,1);
+  localStorage.setItem(CK, JSON.stringify(clients));
+  renderClientList();
+}
+
+function toggleClientList(){
+  const el = document.getElementById('clientList');
+  if(el.style.display==='none'){
+    renderClientList();
+    el.style.display='block';
+  } else {
+    el.style.display='none';
+  }
+}
+
+function renderClientList(){
+  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const el = document.getElementById('clientList');
+  if(!clients.length){ el.innerHTML='<div style="font-size:.78rem;color:var(--muted);padding:8px">저장된 고객 없음</div>'; return; }
+  el.innerHTML = clients.map((c,i)=>`
+    <div onclick="loadClient(${i})" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--card2)">
+      <div style="flex:1">
+        <span style="color:var(--gold2);font-weight:700">${c.name}</span>
+        <span style="color:var(--muted);font-size:.74rem;margin-left:6px">${c.gender} · ${c.birth||'날짜미상'} · ${c.topic}</span>
+      </div>
+      <span style="font-size:.7rem;color:var(--muted)">${c.savedAt}</span>
+      <button onclick="deleteClient(${i},event)" style="background:none;border:none;color:var(--red);font-size:.8rem;cursor:pointer">✕</button>
+    </div>`).join('');
+}
+
+// 상담 시작 후 저장 카드 표시
+const _origStart = startConsulting;
+
 // 초기화
 loadKeys();
 setWcat(document.querySelector('.wcat.on'), 'fortune');
+document.getElementById('saveCard').style.display='none';
 if(_keys.length===0 && !IS_ARTIFACT) setTimeout(openKeyModal, 600);
 
 // 초기화

@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>✦ 천운 상담도구</title>
@@ -108,7 +106,6 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 
 /* ── 키 모달 ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;}
-.overlay.on{display:flex;}
 .modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;width:calc(100% - 32px);max-width:400px;}
 .modal h3{font-size:.95rem;color:var(--gold2);margin-bottom:14px;}
 .modal input{margin-bottom:8px;}
@@ -139,7 +136,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 <!-- 상단바 -->
 <div class="topbar">
   <span class="topbar-title">✦ 천운 상담도구</span>
-  <span id="keyBadge" style="font-size:.72rem;border:1px solid #333;border-radius:6px;padding:4px 10px;color:var(--muted);cursor:pointer" onclick="openKeyModal()">🔑 키 설정</span>
+  <span id="keyBadge" style="font-size: 0.72rem; border: 1px solid rgb(42, 74, 42); border-radius: 6px; padding: 4px 10px; color: rgb(76, 175, 132); cursor: pointer;" onclick="openKeyModal()">✅ Gemini 1개</span>
 </div>
 
 <!-- 탭 -->
@@ -347,7 +344,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
     </div>
 
     <!-- 질문 목록 -->
-    <div id="whyQList"></div>
+    <div id="whyQList">
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:4px">
+      <button class="q-btn" onclick="askWhy('왜 올해 이렇게 힘든 거예요?')">왜 올해 이렇게 힘든 거예요?</button><button class="q-btn" onclick="askWhy('왜 저는 이렇게 안 풀리는 거예요?')">왜 저는 이렇게 안 풀리는 거예요?</button><button class="q-btn" onclick="askWhy('왜 대운이 중요한 건가요?')">왜 대운이 중요한 건가요?</button><button class="q-btn" onclick="askWhy('기운이 약하다는 게 무슨 뜻인가요?')">기운이 약하다는 게 무슨 뜻인가요?</button><button class="q-btn" onclick="askWhy('용신이 뭔가요? 왜 필요한가요?')">용신이 뭔가요? 왜 필요한가요?</button><button class="q-btn" onclick="askWhy('왜 사주가 잘 맞는 거예요?')">왜 사주가 잘 맞는 거예요?</button><button class="q-btn" onclick="askWhy('왜 올해 변화가 많이 생기는 건가요?')">왜 올해 변화가 많이 생기는 건가요?</button><button class="q-btn" onclick="askWhy('일주가 뭔가요? 왜 중요한가요?')">일주가 뭔가요? 왜 중요한가요?</button><button class="q-btn" onclick="askWhy('제 사주에 특이한 게 있나요?')">제 사주에 특이한 게 있나요?</button><button class="q-btn" onclick="askWhy('삼재가 뭔가요? 올해 삼재인가요?')">삼재가 뭔가요? 올해 삼재인가요?</button><button class="q-btn" onclick="askWhy('왜 이 시기가 이렇게 힘든지 사주로 설명해줄 수 있나요?')">왜 이 시기가 이렇게 힘든지 사주로 설명해줄 수 있나요?</button><button class="q-btn" onclick="askWhy('앞으로 좋아지는 시기가 언제예요?')">앞으로 좋아지는 시기가 언제예요?</button><button class="q-btn" onclick="askWhy('제 팔자가 원래 이런 건가요?')">제 팔자가 원래 이런 건가요?</button><button class="q-btn" onclick="askWhy('올해 조심해야 할 게 뭐가 있나요?')">올해 조심해야 할 게 뭐가 있나요?</button>
+    </div></div>
 
     <!-- 직접 입력 -->
     <div id="whyCustom" style="display:none">
@@ -357,49 +357,97 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
   </div>
 
   <!-- 답변 결과 -->
-  <div id="whyResult" class="why-result"></div>
+  <div id="whyResult" class="why-result" style="display: none;"></div>
 </div>
 
 <!-- API 키 모달 -->
-<div class="overlay on" id="keyModal" style="display:none;align-items:center;justify-content:center;">
-  <div class="modal" style="max-width:420px;width:calc(100% - 32px)">
-    <div class="modal-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      🔑 Gemini API 키 설정
-      <button onclick="closeKeyModal()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer">✕</button>
+<div id="keyModal" style="position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.85); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 16px;">
+  <div style="background:#15151a;border:1px solid #2a2a38;border-radius:18px;padding:22px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto">
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-size:.95rem;font-weight:700;color:var(--gold2)">🔑 API 키 설정</span>
+      <button onclick="closeKeyModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer">✕</button>
     </div>
-    <div style="background:#0a1a0a;border:1px solid #2a4a2a;border-radius:10px;padding:12px;margin-bottom:14px;font-size:.76rem;line-height:1.9;color:#7aaa7a">
-      ✦ <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#aaffaa">aistudio.google.com</a> 에서 무료 발급<br>
-      ✦ 키 1개당 하루 50회 무료 · 매일 자정 재충전<br>
-      ✦ 최대 10개 등록 → 자동 순환 사용
+
+    <!-- 안내 -->
+    <div style="background:#0a1a0a;border:1px solid #2a4a2a;border-radius:10px;padding:12px;margin-bottom:14px;font-size:.74rem;line-height:1.9;color:#7aaa7a">
+      ✦ <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#aaffaa">aistudio.google.com/app/apikey</a> 에서 발급<br>
+      ✦ 새 키: <b style="color:#ffcc44">AQ...</b> 형식 / 구 키: <b style="color:#aaaaff">AIzaSy...</b> 형식 모두 지원<br>
+      ✦ 무료 키 1개당 하루 500회 · 자정에 자동 재충전
     </div>
-    <label style="font-size:.75rem;color:var(--muted)">새 키 추가</label>
-    <div style="display:flex;gap:7px;margin-bottom:12px;margin-top:4px">
-      <input id="keyInput" type="password" placeholder="AIzaSy... 붙여넣기" style="flex:1;margin:0">
-      <button onclick="addKey()" style="padding:0 16px;border-radius:10px;background:var(--gold);color:#1a0a00;border:none;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+
+    <!-- 무료 키 섹션 -->
+    <div style="background:#0d0d14;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:.8rem;font-weight:700;color:var(--gold2)">🆓 무료 키 (최대 10개 자동 순환)</span>
+        <span id="freeKeyCount" style="font-size:.72rem;color:var(--muted)">0/10개</span>
+      </div>
+      
+      <!-- 한꺼번에 붙여넣기 -->
+      <textarea id="bulkKeyInput" placeholder="키를 여러 개 한꺼번에 붙여넣으세요
+(줄바꿈으로 구분, 최대 10개)
+
+AQ.Ab8RN...
+AQ.Cd9KM...
+AIzaSy..." style="width:100%;background:#080810;border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--text);font-size:.76rem;min-height:90px;resize:vertical;font-family:monospace;margin-bottom:8px;outline:none"></textarea>
+      <button onclick="addBulkKeys()" style="width:100%;padding:9px;border-radius:9px;background:var(--gold);color:#1a0a00;border:none;font-weight:700;font-size:.82rem;cursor:pointer;margin-bottom:10px">+ 한꺼번에 추가</button>
+      
+      <!-- 등록된 무료 키 목록 -->
+      <div id="freeKeyList" style="max-height:160px;overflow-y:auto"></div>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px" id="keyCountLabel">등록된 키: 0개</div>
-    <div id="keyList" style="max-height:160px;overflow-y:auto"></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
+
+    <!-- 유료 키 섹션 -->
+    <div style="background:#0d0a00;border:1px solid #3a2a00;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#f0c060">💎 유료 키 (무료 소진 시 자동 전환)</span>
+        <span id="paidKeyBadge" style="font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; background: rgb(26, 58, 26); color: rgb(106, 218, 106);">등록됨 ✓</span>
+      </div>
+      <input id="paidKeyInput" type="password" placeholder="유료 키 입력 (AQ... 또는 AIzaSy...)" style="width:100%;background:#080810;border:1px solid #3a2a00;border-radius:9px;padding:10px;color:var(--text);font-size:.8rem;margin-bottom:8px;outline:none">
+      <button onclick="savePaidKey()" style="width:100%;padding:9px;border-radius:9px;background:linear-gradient(135deg,#7a5000,#c08000);color:#fff8e0;border:none;font-weight:700;font-size:.82rem;cursor:pointer">💎 유료 키 저장</button>
+      <div id="paidKeyStatus" style="margin-top: 8px; font-size: 0.73rem; color: rgb(192, 144, 64); display: block;">💎 유료 키 등록됨 — 무료 키 소진 시 자동 전환</div>
+    </div>
+
+    <!-- 알림 설정 -->
+    <div style="background:#0a0a1a;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+      <div style="font-size:.78rem;font-weight:700;color:var(--sub);margin-bottom:8px">🔔 알림 설정</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted);cursor:pointer;margin-bottom:6px">
+        <input type="checkbox" id="notifySwitch" onchange="saveNotifySetting()" style="width:auto"> 
+        무료 키 전환 시 알림 표시
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="notifyPaid" onchange="saveNotifySetting()" style="width:auto"> 
+        유료 키 사용 시 알림 표시
+      </label>
+    </div>
+
+    <div style="display:flex;gap:8px">
       <button onclick="saveToFile()" style="flex:1;padding:11px;border-radius:10px;background:#1a2a1a;border:1px solid #3a5a3a;color:#7aaa7a;font-size:.78rem;cursor:pointer">💾 키 포함 파일저장</button>
       <button onclick="closeKeyModal()" style="flex:1;padding:11px;border-radius:10px;background:var(--gold);border:none;color:#1a0a00;font-weight:700;font-size:.82rem;cursor:pointer">완료</button>
     </div>
   </div>
 </div>
 
-<div class="snack" id="snack"></div>
+<div class="snack" id="snack">💎 유료 키 저장됨!</div>
 
 <script>
 // ════════════════════════════════
 // API 설정
 // ════════════════════════════════
 const GK = 'ck_gkeys';
+const GK_PAID = 'ck_gkey_paid';
+const GK_NOTIFY = 'ck_notify';
 const MODEL = 'gemini-2.5-flash';
 const API_URL = k => 'https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+k;
 
-// ★ 파일에 키를 저장하려면 아래 배열에 직접 입력 (saveToFile 버튼으로 자동 갱신)
-const SAVED_KEYS = []; // 여기에 키가 저장됨
+// ★ 파일에 키를 저장하려면 saveToFile 버튼으로 자동 갱신
+const SAVED_KEYS = ["AQ.Ab8RN6JFbQbrNzZVks0Xmeu7DWO9MmRjiI7Ck_encmhyXlvEOQ"]; // 무료 키 목록
+const SAVED_PAID_KEY = 'AIzaSyAsK71T378aMa9l8CP4xfvzikuvfEZsqdE'; // 유료 키
 
 let _keys = [], _ki = 0;
+let _paidKey = '';
+let _usingPaid = false;
+let _notifySwitch = true;
+let _notifyPaid = true;
 
 // 아티팩트 환경 감지
 const IS_ARTIFACT = (function(){
@@ -421,39 +469,100 @@ async function aiClaude(prompt, maxT){
   return d.content?.[0]?.text || '';
 }
 
+async function callGemini(key, prompt, maxT){
+  const isAuth = key.startsWith('AQ.');
+  const url = isAuth
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
+    : API_URL(key);
+  const headers = {'Content-Type':'application/json'};
+  if(isAuth) headers['Authorization'] = 'Bearer '+key;
+  const r = await fetch(url,{
+    method:'POST', headers,
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:maxT,temperature:0.85}})
+  });
+  const d = await r.json();
+  if(d.error) throw Object.assign(new Error(d.error.message),{code:d.error.code});
+  return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+}
+
 async function ai(prompt, maxT){
   maxT = maxT||2048;
   if(IS_ARTIFACT){ return await aiClaude(prompt, maxT); }
-  if(_keys.length===0){ openKeyModal(); throw new Error('API 키를 먼저 등록해주세요.'); }
-  const start = _ki % _keys.length;
-  let lastErr = null;
-  for(let t=0;t<_keys.length;t++){
-    const idx=(start+t)%_keys.length;
-    const key=_keys[idx];
-    try{
-      const r=await fetch(API_URL(key),{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:maxT,temperature:0.85}})
-      });
-      const d=await r.json();
-      if(d.error){
-        const c=d.error.code;
-        if(c===429||c===503){lastErr=d.error.message;_ki++;continue;}
-        throw new Error(d.error.message);
+
+  const hasKeys = _keys.length > 0;
+  const hasPaid = !!_paidKey;
+  if(!hasKeys && !hasPaid){ openKeyModal(); throw new Error('API 키를 먼저 등록해주세요.'); }
+
+  // ── 무료 키 순환 시도 ──
+  if(hasKeys){
+    const start = _ki % _keys.length;
+    for(let t=0;t<_keys.length;t++){
+      const idx=(start+t)%_keys.length;
+      const key=_keys[idx];
+      try{
+        const result = await callGemini(key, prompt, maxT);
+        // 유료에서 무료로 돌아왔으면 알림
+        if(_usingPaid){
+          _usingPaid=false; updateBadge();
+          if(_notifySwitch) snack('🔄 무료 키로 전환됐습니다 ('+String(idx+1)+'번째 키)');
+        }
+        _ki=idx+1;
+        return result;
+      }catch(e){
+        if(e.code===429||e.code===503){
+          _ki=idx+1; continue; // 다음 무료 키 시도
+        }
+        throw e;
       }
-      _ki=(idx+1);
-      return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
-    }catch(e){lastErr=e.message;_ki++;}
+    }
   }
-  throw new Error('모든 키 오류: '+lastErr);
+
+  // ── 무료 키 전부 소진 → 유료 키 시도 ──
+  if(hasPaid){
+    try{
+      const result = await callGemini(_paidKey, prompt, maxT);
+      if(!_usingPaid){
+        _usingPaid=true; updateBadge();
+        if(_notifyPaid){
+          snack('💎 무료 키 소진 — 유료 키로 전환됐습니다');
+          // 자정 재충전 시간 계산
+          const now=new Date();
+          const midnight=new Date(now); midnight.setHours(24,0,0,0);
+          const diff=Math.round((midnight-now)/60000);
+          const h=Math.floor(diff/60), m=diff%60;
+          setTimeout(()=>snack(`⏰ 무료 키는 자정(약 ${h}시간 ${m}분 후)에 재충전됩니다`),2000);
+        }
+      }
+      return result;
+    }catch(e){
+      _usingPaid=false; updateBadge();
+      throw new Error('유료 키 오류: '+e.message);
+    }
+  }
+
+  // 무료+유료 모두 실패
+  snack('⚠️ 모든 키 소진! 자정 후 무료 키가 재충전됩니다.');
+  throw new Error('모든 키 한도 초과. 자정 후 재시도하세요.');
 }
 
 function loadKeys(){
+  // 무료 키 로드
   _keys = [...SAVED_KEYS];
   try{
     const stored = JSON.parse(localStorage.getItem(GK)||'[]');
     stored.forEach(function(k){ if(!_keys.includes(k)) _keys.push(k); });
   }catch(e){}
+
+  // 유료 키 로드
+  _paidKey = SAVED_PAID_KEY || localStorage.getItem(GK_PAID) || '';
+
+  // 알림 설정 로드
+  try{
+    const ns = JSON.parse(localStorage.getItem(GK_NOTIFY)||'{}');
+    _notifySwitch = ns.switch !== false;
+    _notifyPaid   = ns.paid   !== false;
+  }catch(e){}
+
   renderKeys(); updateBadge();
 }
 
@@ -461,9 +570,44 @@ function saveKeys(){
   localStorage.setItem(GK, JSON.stringify(_keys));
 }
 
+function savePaidKey(){
+  const v = (document.getElementById('paidKeyInput').value||'').trim();
+  if(!v||v.length<10){ snack('유료 키를 입력해주세요.'); return; }
+  _paidKey = v;
+  localStorage.setItem(GK_PAID, v);
+  document.getElementById('paidKeyInput').value = '';
+  const badge = document.getElementById('paidKeyBadge');
+  if(badge){ badge.textContent='등록됨 ✓'; badge.style.background='#1a3a1a'; badge.style.color='#6ada6a'; }
+  const status = document.getElementById('paidKeyStatus');
+  if(status){ status.style.display='block'; status.textContent='💎 유료 키 등록됨 — 무료 키 소진 시 자동 전환'; }
+  snack('💎 유료 키 저장됨!');
+}
+
+function saveNotifySetting(){
+  _notifySwitch = document.getElementById('notifySwitch')?.checked ?? true;
+  _notifyPaid   = document.getElementById('notifyPaid')?.checked   ?? true;
+  localStorage.setItem(GK_NOTIFY, JSON.stringify({switch:_notifySwitch, paid:_notifyPaid}));
+}
+
+function addBulkKeys(){
+  const raw = document.getElementById('bulkKeyInput').value.trim();
+  if(!raw){ snack('키를 입력해주세요.'); return; }
+  const lines = raw.split(/[\n,]+/).map(k=>k.trim()).filter(k=>k.length>10);
+  let added = 0;
+  for(const k of lines){
+    if(_keys.length >= 10){ snack('최대 10개까지 등록 가능합니다.'); break; }
+    if(!_keys.includes(k)){ _keys.push(k); added++; }
+  }
+  saveKeys();
+  document.getElementById('bulkKeyInput').value = '';
+  renderKeys(); updateBadge();
+  snack(`✅ ${added}개 추가됨 (총 ${_keys.length}개)`);
+}
+
 function addKey(){
   const v=(document.getElementById('keyInput').value||'').trim();
-  if(!v||v.length<15){snack('키가 올바르지 않습니다.');return;}
+  if(!v||v.length<10){snack('키가 올바르지 않습니다.');return;}
+
   if(_keys.includes(v)){snack('이미 등록된 키입니다.');return;}
   if(_keys.length>=10){snack('최대 10개까지 가능합니다.');return;}
   _keys.push(v);
@@ -503,19 +647,21 @@ function updateBadge(){
 
 function saveToFile(){
   var content=document.documentElement.outerHTML;
-  var keyStr=JSON.stringify(_keys);
-  content=content.replace('const SAVED_KEYS = [];','const SAVED_KEYS = '+keyStr+';');
+  // 무료 키 저장
+  content=content.replace("const SAVED_KEYS = [];","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
+  // 유료 키 저장
+  content=content.replace("const SAVED_PAID_KEY = '';","const SAVED_PAID_KEY = '"+_paidKey+"';");
   var blob=new Blob([content],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
   a.href=url;a.download='천운_상담도구_키저장.html';
   document.body.appendChild(a);a.click();
   document.body.removeChild(a);URL.revokeObjectURL(url);
-  snack('💾 키 포함 파일 저장됨!');
+  snack('💾 무료키'+_keys.length+'개 + 유료키 포함 파일 저장됨!');
 }
 
-function openKeyModal(){ renderKeys(); document.getElementById('keyModal').classList.add('on'); }
-function closeKeyModal(){ document.getElementById('keyModal').classList.remove('on'); if(_keys.length===0) snack('⚠️ API 키를 등록해야 사용 가능합니다.'); }
+function openKeyModal(){ renderKeys(); const m=document.getElementById('keyModal'); m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
+function closeKeyModal(){ document.getElementById('keyModal').style.display='none'; if(_keys.length===0) snack('⚠️ API 키를 등록해야 사용 가능합니다.'); }
 
 // ════════════════════════════════
 // 탭 전환
@@ -1140,5 +1286,6 @@ if(_keys.length===0 && !IS_ARTIFACT) setTimeout(openKeyModal, 600);
 
 // 초기화
 </script>
-</body>
-</html>
+
+
+</body></html>

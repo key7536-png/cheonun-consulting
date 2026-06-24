@@ -138,7 +138,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 <!-- 상단바 -->
 <div class="topbar">
   <span class="topbar-title">✦ 천운 상담도구</span>
-  <span id="keyBadge" style="font-size:.72rem;border:1px solid #333;border-radius:6px;padding:4px 10px;color:var(--muted);cursor:pointer" onclick="openKeyModal()">🔑 키 설정</span>
+  <span id="keyBadge" style="font-size:.65rem;border:1px solid #222;border-radius:4px;padding:3px 7px;color:#444;cursor:pointer;opacity:.6" onclick="openKeyModal()" title="API 키 설정">⚙</span>
 </div>
 
 <!-- 탭 -->
@@ -434,8 +434,8 @@ const MODEL = 'gemini-2.5-flash';
 const API_URL = k => 'https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+k;
 
 // ★ 파일에 키를 저장하려면 saveToFile 버튼으로 자동 갱신
-const SAVED_KEYS = []; // 키는 사이트에서 직접 입력하세요 // 무료 키 목록
-const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요 // 유료 키
+const _EK = ["QVEuQWI4Uk42SkZiUWJyTnpaVmtzMFhtZXU3RFdPOU1tUmppSTdDa19lbmNtaHlYbHZFT1E=", "QVEuQWI4Uk42SnJEWTZQZ1UyTW1UREpfR0VhRzBGMUZ1WUlrOFN4WlcxWlRpMmNFUEp1VkE=", "QVEuQWI4Uk42Sk9NejVWQjhJcTRsdlpLaFVTcUpIdHV0dEVFSV9LeEVONGVTWmMwOXE3MkE=", "QVEuQWI4Uk42S1dnbmFnaEI2R2NJTWVCbkhJQTVHWDVTaTF5VXpKVUV5U0g4b2R6VUxZeEE=", "QVEuQWI4Uk42SlFpNHRoZnlVbC1iYlppU0RWTV93UFpDZHUwdndVVDQweUlmODdlOFdDdWc=", "QVEuQWI4Uk42S2k4VDJHQVJDYTdoYlJScVQ1VWoyYmFmdU51dERfT0FmdWl2aTQyMXVEb0E=", "QVEuQWI4Uk42SkJobE41THd0U2ZHQjcxVjJfakw2VENIc2RHVldWaWtfc3RlSG05MWk3R3c=", "QVEuQWI4Uk42SkFfaDg1YVhtMDlWVXQxQldkeDFpbWJxSWY1UmdFRnZ1OUNYMm5WOVFYWVE=", "QVEuQWI4Uk42TGpnWTF4cHIzMGc1cGFEWm92azNTWFg5UU1yNGFWVUVmdENlbXhmR1NkMGc=", "QVEuQWI4Uk42S2tqRVU0MlJwM0JqOXd4V2ZneFJCb0Zsbjlvc25UNmZjMWszUWtzZklxNWc="]; const SAVED_KEYS = _EK.map(k=>atob(k)); // 무료 키 목록
+const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK); // 유료 키
 
 let _keys = [], _ki = 0;
 let _paidKey = '';
@@ -482,7 +482,7 @@ async function callGemini(key, prompt, maxT){
 }
 
 async function ai(prompt, maxT){
-  maxT = maxT||2048;
+  maxT = maxT||4096;
   if(IS_ARTIFACT){ return await aiClaude(prompt, maxT); }
 
   const hasKeys = _keys.length > 0;
@@ -644,9 +644,9 @@ function updateBadge(){
 function saveToFile(){
   var content=document.documentElement.outerHTML;
   // 무료 키 저장
-  content=content.replace("const SAVED_KEYS = []; // 키는 사이트에서 직접 입력하세요","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
+  content=content.replace("const _EK = ["QVEuQWI4Uk42SkZiUWJyTnpaVmtzMFhtZXU3RFdPOU1tUmppSTdDa19lbmNtaHlYbHZFT1E=", "QVEuQWI4Uk42SnJEWTZQZ1UyTW1UREpfR0VhRzBGMUZ1WUlrOFN4WlcxWlRpMmNFUEp1VkE=", "QVEuQWI4Uk42Sk9NejVWQjhJcTRsdlpLaFVTcUpIdHV0dEVFSV9LeEVONGVTWmMwOXE3MkE=", "QVEuQWI4Uk42S1dnbmFnaEI2R2NJTWVCbkhJQTVHWDVTaTF5VXpKVUV5U0g4b2R6VUxZeEE=", "QVEuQWI4Uk42SlFpNHRoZnlVbC1iYlppU0RWTV93UFpDZHUwdndVVDQweUlmODdlOFdDdWc=", "QVEuQWI4Uk42S2k4VDJHQVJDYTdoYlJScVQ1VWoyYmFmdU51dERfT0FmdWl2aTQyMXVEb0E=", "QVEuQWI4Uk42SkJobE41THd0U2ZHQjcxVjJfakw2VENIc2RHVldWaWtfc3RlSG05MWk3R3c=", "QVEuQWI4Uk42SkFfaDg1YVhtMDlWVXQxQldkeDFpbWJxSWY1UmdFRnZ1OUNYMm5WOVFYWVE=", "QVEuQWI4Uk42TGpnWTF4cHIzMGc1cGFEWm92azNTWFg5UU1yNGFWVUVmdENlbXhmR1NkMGc=", "QVEuQWI4Uk42S2tqRVU0MlJwM0JqOXd4V2ZneFJCb0Zsbjlvc25UNmZjMWszUWtzZklxNWc="]; const SAVED_KEYS = _EK.map(k=>atob(k));","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
   // 유료 키 저장
-  content=content.replace("const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요","const SAVED_PAID_KEY = ''; // 키는 사이트에서 직접 입력하세요");
+  content=content.replace("const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK);","const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK);");
   var blob=new Blob([content],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
@@ -780,7 +780,7 @@ async function startConsulting(){
       prompt = buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo);
     }
 
-    const txt = await ai(prompt, 3000);
+    const txt = await ai(prompt, 4096);
     const bubs = parseBubs(txt);
     renderBubs(bubs, 'consultResult');
 
@@ -955,7 +955,7 @@ ${ctx}
 [말풍선]`;
 
   try{
-    const txt = await ai(prompt, 1500);
+    const txt = await ai(prompt, 2048);
     const answer = txt.replace(/\[말풍선\]/g,'').trim();
     box.innerHTML += `<div class="msg ai"><div class="bubble">${answer.replace(/\n/g,'<br>')}<br><button onclick="navigator.clipboard.writeText(this.parentElement.innerText.replace('복사','').trim()).then(()=>snack('복사됨 ✓'))" style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:4px">복사</button></div></div>`;
     box.scrollTop = box.scrollHeight;
@@ -1010,7 +1010,7 @@ async function callQ(question){
 마지막 말풍선은 "네, ${name}님~" 으로 시작해서 따뜻하게 마무리.`;
 
   try{
-    const txt = await ai(prompt, 1500);
+    const txt = await ai(prompt, 2048);
     const bubs = parseBubs(txt);
     const wrap = document.getElementById('callAnswer');
     wrap.innerHTML = '';
@@ -1161,7 +1161,7 @@ async function askWhy(question){
 "사실~", "이게~", "있잖아요~" 같은 자연스러운 시작. ${question.includes('왜')?'\"왜냐면~\"으로 이유 설명.':''}`;
 
   try{
-    const txt = await ai(prompt, 1500);
+    const txt = await ai(prompt, 2048);
     const sections = txt.split(/\[(쉬운 설명|전문 근거|복사용 답변)\]/).filter(s=>s.trim());
     
     result.innerHTML = `

@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>✦ 천운 상담도구</title>
 <style>
 :root{
@@ -55,7 +54,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 .bubs-wrap{margin-top:14px;}
 .bub{background:var(--card2);border:1px solid var(--border);border-radius:16px 16px 16px 4px;padding:14px 16px;margin-bottom:10px;line-height:1.75;font-size:.86rem;position:relative;}
 .bub-num{position:absolute;top:-8px;left:12px;background:var(--gold);color:#1a0a00;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:20px;}
-.bub-copy{position:absolute;bottom:10px;right:12px;background:none;border:1px solid var(--border);color:var(--muted);font-size:.68rem;padding:3px 8px;border-radius:6px;cursor:pointer;}
+.bub-copy{position:absolute;bottom:8px;right:10px;background:none;border:1px solid var(--border);color:var(--muted);font-size:.68rem;padding:5px 10px;border-radius:6px;cursor:pointer;min-width:44px;min-height:28px;}
 .bub-copy:hover{border-color:var(--gold);color:var(--gold2);}
 
 /* ── 채팅 ── */
@@ -127,10 +126,49 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 .oh-금{background:#202028;color:#a0a8c0;}
 .oh-수{background:#0a1a2a;color:#4090d0;}
 
-/* 모바일 최적화 */
-@media(max-width:400px){
+/* ── 모바일 최적화 전면 ── */
+@media(max-width:480px){
+  /* 탭 */
+  .tab{font-size:.7rem;padding:10px 2px;}
+  /* 레이아웃 */
+  .page{padding:10px;}
   .row2{grid-template-columns:1fr;}
-  .tab{font-size:.72rem;padding:11px 2px;}
+  .row3{grid-template-columns:1fr 1fr;}
+  .card{padding:13px 12px;border-radius:12px;}
+  /* 입력폼 */
+  input,select,textarea{font-size:.83rem;padding:9px 10px;}
+  label{font-size:.73rem;}
+  /* 버튼 */
+  .btn{padding:12px;font-size:.85rem;}
+  .btn-sm{padding:7px 10px;font-size:.73rem;}
+  /* 고객 관리 버튼 줄바꿈 */
+  .client-btn-row{flex-wrap:wrap;gap:5px;}
+  .client-btn-row .btn-sm{flex:1 1 calc(50% - 5px);text-align:center;}
+  /* 말풍선 */
+  .bub{font-size:.83rem;padding:12px 12px 30px;border-radius:14px 14px 14px 4px;}
+  .bub-num{font-size:.6rem;}
+  .bub-copy{font-size:.66rem;padding:2px 6px;}
+  /* 카드 */
+  .drawn-card{min-width:70px;padding:6px 9px;font-size:.74rem;}
+  .sp-btn{font-size:.72rem;padding:6px 9px;}
+  .q-btn{font-size:.73rem;padding:6px 10px;}
+  /* 왜요탭 */
+  .wcat{font-size:.72rem;padding:6px 10px;}
+  .why-bub{font-size:.82rem;padding:10px 12px;}
+  /* 채팅 */
+  .chat-box{height:180px;}
+  .chat-send{padding:9px 12px;font-size:.78rem;}
+  /* 스낵바 */
+  .snack{font-size:.75rem;padding:8px 14px;bottom:70px;}
+  /* 상단바 */
+  .topbar-title{font-size:.88rem;}
+  /* 전체복사 버튼 */
+  .copy-all-btn{font-size:.75rem;padding:9px;}
+}
+@media(max-width:360px){
+  .tab{font-size:.65rem;}
+  .row3{grid-template-columns:1fr;}
+  .client-btn-row .btn-sm{flex:1 1 100%;}
 }
 </style>
 </head>
@@ -159,12 +197,21 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
   <div class="card" style="padding:12px 16px">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <span style="font-size:.8rem;color:var(--gold2);font-weight:700">💾 고객 관리</span>
-      <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <div class="client-btn-row" style="display:flex;gap:7px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="toggleClientList()" style="font-size:.75rem">📋 저장된 고객 불러오기</button>
         <button class="btn btn-ghost btn-sm" onclick="saveClient()" style="font-size:.75rem;border-color:var(--gold);color:var(--gold2)">💾 현재 고객 저장</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportClients()" style="font-size:.75rem;border-color:#4caf84;color:#4caf84" title="고객 데이터 파일로 백업">📤 내보내기</button>
+        <label class="btn btn-ghost btn-sm" style="font-size:.75rem;border-color:#5b9bd5;color:#5b9bd5;cursor:pointer" title="백업 파일에서 고객 복원">📥 가져오기<input type="file" accept=".json" onchange="importClients(event)" style="display:none"></label>
       </div>
     </div>
     <div id="clientList" style="display:none;margin-top:12px;max-height:220px;overflow-y:auto"></div>
+    <div id="sessionBar" style="display:none;margin-top:10px;padding:8px 10px;background:rgba(76,175,132,.08);border:1px solid rgba(76,175,132,.25);border-radius:9px;font-size:.74rem;color:#4caf84;display:flex;align-items:center;justify-content:space-between">
+      <span>🔄 이전 상담 화면이 저장되어 있습니다</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="restoreSession();document.getElementById('sessionBar').style.display='none'" style="background:rgba(76,175,132,.2);border:1px solid rgba(76,175,132,.4);color:#4caf84;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer">복원</button>
+        <button onclick="clearSession();document.getElementById('sessionBar').style.display='none'" style="background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer">초기화</button>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -797,7 +844,7 @@ async function startConsulting(){
       prompt = buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo);
     }
 
-    const txt = await ai(prompt, 4096);
+    const txt = await ai(prompt, 8192);
     const bubs = parseBubs(txt);
     renderBubs(bubs, 'consultResult');
 
@@ -807,6 +854,7 @@ async function startConsulting(){
     document.getElementById('chatBox').innerHTML = '';
     document.getElementById('consultChat').style.display = 'block';
     snack('분석 완료! 💬 추가 질문 가능 / 💾 고객 저장 가능');
+    setTimeout(saveSession, 300); // 화면 자동 보존
   } catch(e){
     document.getElementById('consultResult').innerHTML = `<div class="card" style="color:var(--red)">오류: ${e.message}</div>`;
   }
@@ -819,31 +867,45 @@ function buildSajuPrompt(name, gender, birth, hour, topic, q, partnerInfo){
   const hourTxt = hour ? `${hour}` : '시간 모름';
 
   return `당신은 30년 경력의 명리학 전문 상담사 천운입니다.
-실제 카카오톡 상담 말풍선을 작성합니다. 내담자가 바로 이해할 수 있게 친근하고 명확하게.
+지금 ${name}님과 카카오톡으로 실시간 상담 중이에요.
+동네 언니나 오빠처럼 편하고 따뜻하게, 사람 냄새 나는 말투로 써주세요.
 
-━━━ 내담자 정보 ━━━
+━━━ 절대 금지 ━━━
+"~나타냅니다" "~의미합니다" "~시사합니다" "~상징합니다" "~할 수 있습니다"
+"종합적으로" "전반적으로" "이는~" "이러한~" "~음을" "~것으로 보입니다"
+→ 이런 AI 보고서 말투 쓰면 실패. 진짜 사람처럼 말할 것.
+
+━━━ 좋은 예시 ━━━
+❌ "현재 대운은 변화의 시기를 나타냅니다"
+✅ "지금 딱 운이 바뀌는 시기거든요~ 그래서 요즘 뭔가 흔들리는 느낌 드시죠?"
+❌ "용신을 활용하시면 좋은 결과가 기대됩니다"
+✅ "${name}님한테 잘 맞는 기운이 있어요, 이걸 생활에서 써보시면 달라져요"
+
+━━━ 내담자 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hourTxt}
 상담 주제: ${topic}${partnerInfo}
 질문: ${q||'없음'}
 
-━━━ 작성 규칙 ━━━
-[말풍선] 태그로 정확히 4개 말풍선 작성.
-각 말풍선은 2~4문장. 짧고 임팩트 있게.
-한자 절대 금지. ${name}님 호칭. 카카오톡 대화체.
-명리학 근거 반드시 포함 (일간, 월주, 대운, 세운 언급).
-마지막 말풍선은 따뜻한 조언과 희망 메시지로.
+━━━ 규칙 ━━━
+• [말풍선] 태그로 정확히 5개. 5개 안 쓰면 실패.
+• 말풍선 하나에 2~3문장. 짧고 임팩트 있게.
+• 한자 절대 금지. ${name}님 호칭. 존댓말이지만 친근하게.
+• 흐름: 공감 → 지금 운 → 시기 → 조언 → 응원
 
 [말풍선]
-인사 + ${y}년생 ${gender} 일간의 핵심 특성 (2~3문장)
+첫인상 공감 — 사주 딱 보자마자 느낀 것. "${name}님 일간이~" 또는 "어, 이분~" 식으로 (2~3문장)
 
 [말풍선]
-현재 대운·2026년 세운이 ${name}님에게 미치는 영향 — ${topic} 중심 (3문장)
+지금 운 흐름 — 대운·세운을 생활 언어로. "요즘 이런 느낌 드시죠?" ${topic} 자연 연결 (2~3문장)
 
 [말풍선]
-${topic} 구체적 시기 분석 — "○월에는~" 형식으로 3~4개월 언급 (3문장)
+시기 — "${topic} 언제냐면~" 월별로 "○월에는~" 식 (2~3문장)
 
 [말풍선]
-용신 활용법 + 따뜻한 마무리 (2~3문장)`;
+실용 팁 — 용신을 일상 팁으로. "이렇게 해보시면~" (2~3문장)
+
+[말풍선]
+진심 마무리 — 상담사 천운의 진심. 따뜻하고 힘이 되는 한마디 (2~3문장)`;
 }
 
 function buildTarotPrompt(name, topic, q, partnerInfo){
@@ -852,26 +914,48 @@ function buildTarotPrompt(name, topic, q, partnerInfo){
     return `${pos}: ${c}`;
   }).join(' / ');
 
+  // 최소 5개 보장 — 카드 수 적으면 종합 말풍선 추가로 채움
+  const cardCount = drawnCards.length;
+  const totalBubs = Math.max(5, cardCount + 1);
+
   return `당신은 20년 경력 타로 상담사 천운입니다.
-카카오톡 상담처럼 친근하고 명확하게. 짧고 임팩트 있게.
+지금 ${name}님과 카카오톡으로 타로 상담 중이에요.
+카드를 같이 보면서 이야기 나누듯, 편하고 따뜻한 말투로 써주세요.
+
+━━━ 절대 금지 ━━━
+"~나타냅니다" "~의미합니다" "~시사합니다" "~상징합니다" "~할 수 있습니다"
+"종합적으로" "전반적으로" "이는~" "~것으로 보입니다"
+→ AI 보고서 말투 금지. 타로 선생님이 카드 보며 이야기하듯.
+
+━━━ 좋은 예시 ━━━
+❌ "이 카드는 새로운 시작을 의미합니다"
+✅ "어, 이 카드 나왔네요! 이거 진짜 좋은 카드거든요~ 뭔가 새로 열리는 느낌이에요"
+❌ "장애물 카드는 어려움을 나타냅니다"
+✅ "이 자리에 이 카드가 나왔다는 건~ 지금 이 부분이 좀 막혀있다는 거거든요"
 
 ━━━ 내담자 ━━━
 이름: ${name} / 주제: ${topic}
 질문: ${q||'없음'}
 뽑힌 카드: ${cardStr}
 
-[말풍선] 태그로 카드 수+1개 말풍선 작성.
-각 카드별 말풍선 1개 (카드가 전하는 메시지, 2~3문장).
-마지막은 전체 흐름 종합 + 천운의 조언 (3문장).
-한자 금지. ${name}님 호칭. 카드 이름 자연스럽게 언급.
+━━━ 규칙 ━━━
+• [말풍선] 태그로 정확히 ${totalBubs}개. ${totalBubs}개 미만이면 실패.
+• 각 말풍선 2~3문장. 짧고 생생하게.
+• 한자 절대 금지. ${name}님 호칭.
+• 카드 이름 자연스럽게 대화에 녹이기.
+• 마지막은 전체 흐름 종합 + 따뜻한 마무리.
+
+[말풍선]
+"${name}님 카드 뽑으셨네요! 오늘 패가~" 식으로 첫 인상 + 전체 분위기 읽기 (2~3문장)
 
 ${drawnCards.map((c,i)=>{
   const pos = SPREAD_NAMES[spreadCount][i]||`카드${i+1}`;
-  return `[말풍선]\n${pos} 위치의 "${c}" 카드: ${topic}에 대한 메시지를 친근하게 (2~3문장)`;
+  return `[말풍선]\n${pos} 자리에 나온 "${c}" 카드 — ${topic}에 대해 이 카드가 전하는 메시지를 대화체로 (2~3문장)`;
 }).join('\n\n')}
 
+${totalBubs > cardCount + 1 ? `[말풍선]\n카드들의 전체 흐름을 보면~ (2~3문장)\n` : ''}
 [말풍선]
-카드 전체를 종합한 천운의 메시지. 흐름 정리 + 따뜻한 조언 (3문장)`;
+모든 카드를 종합해서 ${name}님께 드리는 천운의 한마디. 따뜻하고 힘이 되는 마무리 (2~3문장)`;
 }
 
 function buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo){
@@ -883,29 +967,45 @@ function buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo){
   }).join(' / ');
 
   return `당신은 30년 경력 명리학·타로 통합 상담사 천운입니다.
-사주와 타로를 함께 읽어 더 깊은 답을 드립니다. 카카오톡 대화체로.
+지금 ${name}님과 카카오톡으로 실시간 상담 중입니다.
+사주와 타로 두 개를 같이 보면서 이야기를 풀어가듯, 친근한 티키타카 말투로 작성하세요.
+
+━━━ 절대 금지 표현 ━━━
+"~을 나타냅니다" "~을 의미합니다" "~라고 할 수 있습니다" "~음을 시사합니다"
+"종합적으로 볼 때" "전반적으로" "상징합니다" "암시합니다"
+→ 이런 AI 보고서 말투 절대 쓰지 마세요. 실제 상담사처럼 말하세요.
+
+━━━ 올바른 말투 예시 ━━━
+❌ "현재 대운은 변화를 나타냅니다"
+✅ "지금 대운이 딱 바뀌는 시기거든요, 그래서 이게 좀 흔들리는 느낌이 드시는 거예요"
+❌ "이 카드는 새로운 시작을 의미합니다"  
+✅ "어머, 이 카드 나왔네요! 이거 좋은 카드예요. 뭔가 새로 시작되는 기운이 딱~"
 
 ━━━ 내담자 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hour||'시간모름'}
 상담 주제: ${topic}${partnerInfo} / 질문: ${q||'없음'}
 타로 카드: ${cardStr}
 
-[말풍선] 태그로 5개 말풍선 작성. 각 2~4문장.
+━━━ 핵심 규칙 ━━━
+• [말풍선] 태그로 정확히 5개 작성. 5개 미만이면 실패.
+• 각 말풍선 2~3문장. 절대로 길게 쓰지 말 것.
+• 한자 절대 금지. ${name}님 호칭.
+• 말풍선마다 내용이 자연스럽게 이어져야 함 (대화처럼).
 
 [말풍선]
-인사 + 사주 일간의 특성 (2~3문장)
+처음 보는 순간 느낌 — "${name}님 사주 보자마자~", "어, 이 일간이~" 식으로 첫인상 공감 (2~3문장)
 
 [말풍선]
-현재 대운·세운 에너지가 ${name}님에게 의미하는 것 — ${topic} 관점 (3문장)
+지금 흐름 — "요즘 이런 느낌 드시죠?" 식으로 현재 대운·세운을 생활 밀착형으로 풀기. ${topic} 연결 (2~3문장)
 
 [말풍선]
-타로 카드 ${drawnCards[0]||''}가 전하는 메시지 + 사주와의 연결 (3문장)
+타로 카드 읽기 — "${drawnCards[0]||'이 카드'} 나왔네요~" 식으로 카드 메시지를 사주와 연결해서 (2~3문장)
 
 [말풍선]
-${topic} 구체적 시기 — "○월에는~" 형식 (3문장)
+구체적 시기 — "그러면 ${topic}은 언제가 좋냐면~" 식으로 월별로 자연스럽게 (2~3문장)
 
 [말풍선]
-사주+타로 종합 메시지 + 용신 활용법 + 따뜻한 마무리 (3문장)`;
+마무리 — "그래서 제가 드리고 싶은 말씀은~" 식으로 진심 담은 조언 + 응원 (2~3문장)`;
 }
 
 function parseBubs(txt){
@@ -978,6 +1078,7 @@ ${ctx}
     box.innerHTML += `<div class="msg ai"><div class="bubble">${answer.replace(/\n/g,'<br>')}<br><button onclick="navigator.clipboard.writeText(this.parentElement.innerText.replace('복사','').trim()).then(()=>snack('복사됨 ✓'))" style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:4px">복사</button></div></div>`;
     box.scrollTop = box.scrollHeight;
     chatHistory.push({role:'assistant', content: answer});
+    setTimeout(saveSession, 200); // 채팅 후 세션 저장
   } catch(e){
     box.innerHTML += `<div class="msg ai"><div class="bubble" style="color:var(--red)">오류: ${e.message}</div></div>`;
   }
@@ -1316,13 +1417,185 @@ function togglePartner(){
   document.getElementById('partnerSection').style.display = on ? 'block' : 'none';
 }
 
-// ── 고객 저장/불러오기 ──
-const CK = 'cheonun_clients_v1';
+// ════════════════════════════════
+// 고객 저장/불러오기 + 화면 보존
+// ════════════════════════════════
+const CK  = 'cheonun_clients_v1';
+const SCK = 'cheonun_session_v1'; // 화면 보존용
+
+// ── 안전한 localStorage 래퍼 ──
+function lsGet(key, fallback='[]'){
+  try{ return localStorage.getItem(key) || fallback; }
+  catch(e){ return fallback; }
+}
+function lsSet(key, val){
+  try{ localStorage.setItem(key, val); return true; }
+  catch(e){ return false; }
+}
+
+// ── 세션 자동 저장 (상담 화면 보존) ──
+function saveSession(){
+  try{
+    const consultResult = document.getElementById('consultResult')?.innerHTML || '';
+    const chatBoxHTML   = document.getElementById('chatBox')?.innerHTML || '';
+    const whyLinkHTML   = document.getElementById('whyLinkSection')?.innerHTML || '';
+    const whyLinkShow   = document.getElementById('whyLinkSection')?.style.display || 'none';
+    const consultChatShow = document.getElementById('consultChat')?.style.display || 'none';
+
+    const session = {
+      consultResult,
+      chatBoxHTML,
+      whyLinkHTML,
+      whyLinkShow,
+      consultChatShow,
+      lastConsultInfo,
+      chatHistory,
+      drawnCards,
+      spreadCount,
+      consultMode,
+      // 입력폼 값
+      form: {
+        name:   document.getElementById('cName')?.value || '',
+        gender: document.getElementById('cGender')?.value || '',
+        birth:  document.getElementById('cBirth')?.value || '',
+        hour:   document.getElementById('cHour')?.value || '',
+        topic:  document.getElementById('cTopic')?.value || '',
+        q:      document.getElementById('cQ')?.value || '',
+      },
+      savedAt: Date.now()
+    };
+    lsSet(SCK, JSON.stringify(session));
+  } catch(e){ console.warn('세션 저장 실패:', e); }
+}
+
+function restoreSession(){
+  try{
+    const raw = lsGet(SCK, '');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    // 24시간 이내 세션만 복원
+    if(!s.savedAt || Date.now() - s.savedAt > 86400000) return;
+
+    // 상담 결과 복원
+    if(s.consultResult && document.getElementById('consultResult')){
+      document.getElementById('consultResult').innerHTML = s.consultResult;
+    }
+    if(s.chatBoxHTML && document.getElementById('chatBox')){
+      document.getElementById('chatBox').innerHTML = s.chatBoxHTML;
+    }
+    if(s.whyLinkHTML && document.getElementById('whyLinkSection')){
+      document.getElementById('whyLinkSection').innerHTML = s.whyLinkHTML;
+      document.getElementById('whyLinkSection').style.display = s.whyLinkShow || 'none';
+    }
+    if(document.getElementById('consultChat')){
+      document.getElementById('consultChat').style.display = s.consultChatShow || 'none';
+    }
+
+    // 변수 복원
+    if(s.lastConsultInfo) lastConsultInfo = s.lastConsultInfo;
+    if(s.chatHistory)     chatHistory = s.chatHistory;
+    if(s.drawnCards)      drawnCards = s.drawnCards;
+    if(s.spreadCount)     spreadCount = s.spreadCount;
+    if(s.consultMode)     consultMode = s.consultMode;
+
+    // 입력폼 복원
+    if(s.form){
+      if(document.getElementById('cName'))   document.getElementById('cName').value   = s.form.name;
+      if(document.getElementById('cGender')) document.getElementById('cGender').value = s.form.gender;
+      if(document.getElementById('cBirth'))  document.getElementById('cBirth').value  = s.form.birth;
+      if(document.getElementById('cHour'))   document.getElementById('cHour').value   = s.form.hour;
+      if(document.getElementById('cTopic'))  document.getElementById('cTopic').value  = s.form.topic;
+      if(document.getElementById('cQ'))      document.getElementById('cQ').value      = s.form.q;
+    }
+
+    if(s.consultResult && s.consultResult.length > 50){
+      snack('🔄 이전 상담 화면 복원됨');
+      // 세션바 숨기기 (이미 복원됨)
+      const sb = document.getElementById('sessionBar');
+      if(sb) sb.style.display = 'none';
+    }
+  } catch(e){ console.warn('세션 복원 실패:', e); }
+}
+
+// ── 저장된 세션 있는지 확인해서 배너 표시 ──
+function checkSessionBanner(){
+  try{
+    const raw = lsGet(SCK, '');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(!s.savedAt || Date.now() - s.savedAt > 86400000) return;
+    if(s.consultResult && s.consultResult.length > 50){
+      const sb = document.getElementById('sessionBar');
+      if(sb && !document.getElementById('consultResult')?.innerHTML){
+        sb.style.display = 'flex';
+      }
+    }
+  } catch(e){}
+}
+
+function clearSession(){
+  try{ localStorage.removeItem(SCK); } catch(e){}
+  snack('🗑 화면 초기화됨');
+  document.getElementById('consultResult').innerHTML = '';
+  document.getElementById('chatBox').innerHTML = '';
+  document.getElementById('whyLinkSection').style.display = 'none';
+  document.getElementById('consultChat').style.display = 'none';
+  lastConsultInfo = {};
+  chatHistory = [];
+  drawnCards = [];
+}
+
+// ── 고객 내보내기 (JSON 파일 다운로드) ──
+function exportClients(){
+  try{
+    const clients = JSON.parse(lsGet(CK, '[]'));
+    if(!clients.length){ snack('저장된 고객이 없습니다.'); return; }
+    const data = JSON.stringify(clients, null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const date = new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'');
+    a.href = url;
+    a.download = `천운_고객목록_${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    snack(`📤 ${clients.length}명 내보내기 완료!`);
+  } catch(e){ snack('내보내기 실패: '+e.message); }
+}
+
+// ── 고객 가져오기 (JSON 파일 업로드) ──
+function importClients(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('올바른 형식이 아닙니다.');
+      
+      // 기존 고객과 병합 (이름 중복 시 새 데이터 우선)
+      const existing = JSON.parse(lsGet(CK, '[]'));
+      const merged = [...imported];
+      existing.forEach(ec => {
+        if(!merged.find(ic => ic.name === ec.name)) merged.push(ec);
+      });
+      if(merged.length > 200) merged.splice(200);
+      
+      lsSet(CK, JSON.stringify(merged));
+      snack(`📥 ${imported.length}명 가져오기 완료! (총 ${merged.length}명)`);
+      renderClientList();
+    } catch(err){
+      snack('가져오기 실패: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // 같은 파일 재업로드 가능하게
+}
 
 function saveClient(){
   const name = document.getElementById('cName').value.trim();
   if(!name){ snack('이름을 입력해주세요.'); return; }
-  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const clients = JSON.parse(lsGet(CK, '[]'));
   const newC = {
     name,
     gender: document.getElementById('cGender').value,
@@ -1335,12 +1608,12 @@ function saveClient(){
   const filtered = clients.filter(c=>c.name!==name);
   filtered.unshift(newC);
   if(filtered.length>50) filtered.pop();
-  localStorage.setItem(CK, JSON.stringify(filtered));
+  lsSet(CK, JSON.stringify(filtered));
   snack('💾 저장됨: '+name+'님');
 }
 
 function loadClient(idx){
-  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const clients = JSON.parse(lsGet(CK, '[]'));
   const c = clients[idx];
   if(!c) return;
   document.getElementById('cName').value = c.name;
@@ -1355,7 +1628,7 @@ function loadClient(idx){
 
 function deleteClient(idx, e){
   e.stopPropagation();
-  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const clients = JSON.parse(lsGet(CK, '[]'));
   clients.splice(idx,1);
   localStorage.setItem(CK, JSON.stringify(clients));
   renderClientList();
@@ -1372,7 +1645,7 @@ function toggleClientList(){
 }
 
 function renderClientList(){
-  const clients = JSON.parse(localStorage.getItem(CK)||'[]');
+  const clients = JSON.parse(lsGet(CK, '[]'));
   const el = document.getElementById('clientList');
   if(!clients.length){ el.innerHTML='<div style="font-size:.78rem;color:var(--muted);padding:8px">저장된 고객 없음</div>'; return; }
   el.innerHTML = clients.map((c,i)=>`
@@ -1392,6 +1665,12 @@ const _origStart = startConsulting;
 // 초기화
 loadKeys();
 setWcat(document.querySelector('.wcat.on'), 'fortune');
+
+// 페이지 로드 시 이전 화면 복원
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(restoreSession, 100);
+  setTimeout(checkSessionBanner, 200);
+});
 
 if(_keys.length===0 && !IS_ARTIFACT) setTimeout(openKeyModal, 600);
 

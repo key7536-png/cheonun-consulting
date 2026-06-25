@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -310,6 +311,9 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 
   <!-- 결과 -->
   <div id="consultResult"></div>
+
+  <!-- 사주 명식표 -->
+  <div id="sajuTableWrap" style="display:none"></div>
 
   <!-- 왜요? 연계 빠른 질문 -->
   <div id="whyLinkSection" style="display:none" class="card">
@@ -830,6 +834,7 @@ async function startConsulting(){
 
   const btn = document.getElementById('startBtn');
   btn.disabled = true; btn.textContent = '분석 중...';
+  document.getElementById('sajuTableWrap').style.display='none';
   document.getElementById('consultResult').innerHTML = `<div class="card"><div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div>천운이 분석 중입니다...</div></div>`;
   document.getElementById('consultChat').style.display = 'none';
 
@@ -846,6 +851,11 @@ async function startConsulting(){
 
     const txt = await ai(prompt, 8192);
     const bubs = parseBubs(txt);
+    
+    // 사주 명식표 먼저 렌더링 (사주/사주+타로 모드)
+    if(consultMode !== 'tarot'){
+      renderSajuTable(birth, hour, gender, name);
+    }
     renderBubs(bubs, 'consultResult');
 
     lastConsultInfo = {name, gender, birth, hour, topic, q, mode: consultMode, cards: drawnCards.join('/')};
@@ -861,10 +871,228 @@ async function startConsulting(){
   btn.disabled=false; btn.textContent='✦ 상담 시작';
 }
 
+
+// ── 사주 명식표 화면 렌더링 ──
+function renderSajuTable(birth, hour, gender, name){
+  const saju = calcSaju(birth, hour, gender);
+  if(!saju) return;
+  
+  const el = document.getElementById('sajuTableWrap');
+  if(!el) return;
+  
+  const OH_COLOR = {
+    '갑':'#2d6a2d','을':'#2d6a2d','병':'#8b2020','정':'#8b2020',
+    '무':'#7a5a00','기':'#7a5a00','경':'#3a3a5c','신':'#3a3a5c',
+    '임':'#1a3a5c','계':'#1a3a5c'
+  };
+  const B_COLOR = {
+    '자':'#1a3a5c','축':'#7a5a00','인':'#2d6a2d','묘':'#2d6a2d',
+    '진':'#7a5a00','사':'#8b2020','오':'#8b2020','미':'#7a5a00',
+    '신':'#3a3a5c','유':'#3a3a5c','술':'#7a5a00','해':'#1a3a5c'
+  };
+  
+  function cell(char, isB){
+    const c = isB ? B_COLOR[char]||'#333' : OH_COLOR[char]||'#333';
+    return `<td style="text-align:center;font-weight:800;font-size:1.1rem;padding:8px 4px;color:#fff;background:${c};border:1px solid rgba(255,255,255,.1)">${char}</td>`;
+  }
+  
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:10px">
+      <div class="card-title">🔮 ${name}님 사주 명식</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+        <thead>
+          <tr style="font-size:.7rem;color:var(--muted)">
+            <th style="padding:4px;text-align:center;font-weight:400">시</th>
+            <th style="padding:4px;text-align:center;font-weight:400">일</th>
+            <th style="padding:4px;text-align:center;font-weight:400">월</th>
+            <th style="padding:4px;text-align:center;font-weight:400">년</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>${cell(saju.hp[0]||'?',false)}${cell(saju.dp[0],false)}${cell(saju.mp[0],false)}${cell(saju.yp[0],false)}</tr>
+          <tr>${cell(saju.hp[1]||'?',true)}${cell(saju.dp[1],true)}${cell(saju.mp[1],true)}${cell(saju.yp[1],true)}</tr>
+        </tbody>
+      </table>
+      <div style="font-size:.74rem;color:var(--muted);line-height:1.9">
+        일간 <span style="color:var(--gold2);font-weight:700">${saju.dp[0]}</span> · 
+        현재 대운 <span style="color:var(--purple2);font-weight:700">${saju.curDaeun}</span>(${saju.curDaeunAge}세~) · 
+        세운 <span style="color:var(--mint);font-weight:700">${saju.seun2026}</span>(2026)
+      </div>
+    </div>`;
+  el.style.display = 'block';
+}
+
+// ════════════════════════════════
+// 사주 계산 엔진 (만세력 기반 정확 계산)
+// ════════════════════════════════
+const _S = ['갑','을','병','정','무','기','경','신','임','계'];
+const _B = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+
+function _gz(n){ n=((n%60)+60)%60; return _S[n%10]+_B[n%12]; }
+
+// 일주: 기준일 1999-12-28 = 갑자
+function _dayPillar(y,m,d){
+  const base = new Date(1999,11,28); // 갑자일
+  const target = new Date(y,m-1,d);
+  const diff = Math.round((target-base)/86400000);
+  return _gz(diff);
+}
+
+// 년주: 입춘(2월4일) 기준
+function _yearPillar(y,m,d){
+  const sy = (m<2||(m===2&&d<4)) ? y-1 : y;
+  const idx = ((sy-1984)%60+60)%60;
+  return _gz(idx);
+}
+
+// 월주: 오호둔월법 + 절기 기준
+function _monthPillar(y,m,d){
+  // 절입일 (평균값, ±1일 오차 가능)
+  const TERM_DAY = [0,6,4,6,5,6,6,7,7,8,8,7,7]; // [미사용,축,인,묘,진,사,오,미,신,유,술,해,자]
+  // 양력월→지지 (절기 이전이면 전월)
+  const M2B = [0,1,2,3,4,5,6,7,8,9,10,11,0]; // 1월→축(1)? 아니면 자(0)?
+  // 절기 기준 지지 (절입일 이후)
+  // 1월 소한(6일) 이후→축월, 2월 입춘(4일) 이후→인월
+  const termDay = [0,6,4,6,5,6,6,7,7,8,8,7,7]; // index=month
+  const branchAfter = [0,1,2,3,4,5,6,7,8,9,10,11,0]; // index=month
+  const branchBefore= [0,0,1,2,3,4,5,6,7,8,9,10,11]; // 절기 이전
+  
+  let branch;
+  if(d >= termDay[m]){
+    branch = branchAfter[m];
+  } else {
+    branch = branchBefore[m];
+  }
+  
+  // 해당 월의 년도 기준 (입춘 기준 년)
+  const refYear = (m<2||(m===2&&d<4)) ? y-1 : y;
+  const yStemIdx = ((refYear-1984)%10+10)%10;
+  
+  // 오호둔월법: 년간별 인월 시작 천간
+  const START = [2,4,6,8,0,2,4,6,8,0]; // 갑~계 순서
+  const startStem = START[yStemIdx];
+  const rel = ((branch-2)%12+12)%12;
+  const stemIdx = (startStem+rel)%10;
+  
+  return _S[stemIdx]+_B[branch];
+}
+
+// 시주: 오자둔시법
+const _HOUR_BRANCH = {
+  '자시':0,'축시':1,'인시':2,'묘시':3,'진시':4,'사시':5,
+  '오시':6,'미시':7,'신시':8,'유시':9,'술시':10,'해시':11
+};
+function _hourPillar(dayStr, hourStr){
+  if(!hourStr||!_HOUR_BRANCH.hasOwnProperty(hourStr)) return null;
+  const ds = _S.indexOf(dayStr[0]);
+  const hb = _HOUR_BRANCH[hourStr];
+  const START_H = [0,2,4,6,8,0,2,4,6,8];
+  return _S[(START_H[ds]+hb)%10]+_B[hb];
+}
+
+// 대운수 계산 (양남음녀: 순행 / 음남양녀: 역행)
+function _calcDaeun(y,m,d,gender){
+  const yp = _yearPillar(y,m,d);
+  const yStemIdx = _S.indexOf(yp[0]);
+  const isYang = yStemIdx%2===0; // 양간
+  const isForward = (isYang && gender==='남성') || (!isYang && gender==='여성');
+  
+  // 현재 월주 절입일에서 가장 가까운 절기까지 날수
+  const termDays = [0,6,4,6,5,6,6,7,7,8,8,7,7];
+  let days;
+  if(isForward){
+    // 다음 절기까지 날수
+    const nextTerm = termDays[m===12?1:m+1];
+    const nextTermDate = new Date(m===12?y+1:y, m===12?0:m, nextTerm);
+    const birth = new Date(y,m-1,d);
+    days = Math.round((nextTermDate-birth)/86400000);
+  } else {
+    // 이전 절기까지 날수
+    const thisTerm = termDays[m];
+    if(d >= thisTerm){
+      days = d - thisTerm;
+    } else {
+      const prevM = m===1?12:m-1;
+      const prevTerm = termDays[prevM];
+      days = d + (new Date(m===1?y-1:y,m===2?0:m-1,1)-new Date(m===1?y-1:y,m===2?0:m-1,prevTerm))/86400000;
+      days = Math.max(0, Math.round(days));
+    }
+  }
+  
+  const years = Math.round(days/3); // 3일 = 1년
+  return {startAge: years, isForward};
+}
+
+// 핵심 함수: 전체 사주 명식 계산
+function calcSaju(birthStr, hourStr, gender){
+  if(!birthStr) return null;
+  const d = new Date(birthStr);
+  if(isNaN(d)) return null;
+  const y=d.getFullYear(), m=d.getMonth()+1, day=d.getDate();
+  
+  const yp = _yearPillar(y,m,day);
+  const mp = _monthPillar(y,m,day);
+  const dp = _dayPillar(y,m,day);
+  const hp = _hourPillar(dp, hourStr) || '미상';
+  const daeun = _calcDaeun(y,m,day,gender);
+  
+  // 현재 대운 계산 (2026년 기준)
+  const currentYear = 2026;
+  const age = currentYear - y;
+  const daeunNum = daeun.startAge;
+  
+  // 대운 천간지지 순서
+  const mpBranchIdx = _B.indexOf(mp[1]);
+  const mpStemIdx = _S.indexOf(mp[0]);
+  
+  let currentDaeunPillars = [];
+  for(let i=0; i<8; i++){
+    const offset = daeun.isForward ? i+1 : -(i+1);
+    const s = ((_S.indexOf(mp[0])+10+offset)%10+10)%10;
+    const b = ((_B.indexOf(mp[1])+12+offset)%12+12)%12;
+    const startAge2 = daeunNum + i*10;
+    currentDaeunPillars.push({pillar:_S[s]+_B[b], startAge:startAge2});
+  }
+  
+  // 현재 대운 찾기
+  let curDaeun = currentDaeunPillars[0];
+  for(const de of currentDaeunPillars){
+    if(age >= de.startAge) curDaeun = de;
+  }
+  
+  // 세운 (2026년)
+  const seunIdx = ((2026-1984)%60+60)%60;
+  const seun2026 = _gz(seunIdx);
+  const seunIdx27 = ((2027-1984)%60+60)%60;
+  const seun2027 = _gz(seunIdx27);
+  
+  return {
+    year:y, month:m, day,
+    yp, mp, dp, hp,
+    ilgan: dp[0],
+    daeunStart: daeunNum,
+    curDaeun: curDaeun.pillar,
+    curDaeunAge: curDaeun.startAge,
+    seun2026, seun2027,
+    age,
+    pillarsText: `년주 ${yp} / 월주 ${mp} / 일주 ${dp} / 시주 ${hp}`
+  };
+}
+
 function buildSajuPrompt(name, gender, birth, hour, topic, q, partnerInfo){
   const d = new Date(birth);
   const y = d.getFullYear(), m = d.getMonth()+1, day = d.getDate();
   const hourTxt = hour ? `${hour}` : '시간 모름';
+  
+  // ── 사주 정확 계산 ──
+  const saju = calcSaju(birth, hour, gender);
+  const sajuInfo = saju ? `
+사주 명식 (계산 완료):
+  년주: ${saju.yp} / 월주: ${saju.mp} / 일주: ${saju.dp} / 시주: ${saju.hp}
+  일간: ${saju.ilgan}
+  현재 대운: ${saju.curDaeun} (${saju.curDaeunAge}세 시작)
+  2026년 세운: ${saju.seun2026} / 2027년 세운: ${saju.seun2027}
+  현재 나이: ${saju.age}세` : `생년월일: ${y}년 ${m}월 ${day}일`;
 
   return `당신은 30년 경력의 명리학 전문 상담사 천운입니다.
 지금 ${name}님과 카카오톡으로 실시간 상담 중이에요.
@@ -881,12 +1109,14 @@ function buildSajuPrompt(name, gender, birth, hour, topic, q, partnerInfo){
 ❌ "용신을 활용하시면 좋은 결과가 기대됩니다"
 ✅ "${name}님한테 잘 맞는 기운이 있어요, 이걸 생활에서 써보시면 달라져요"
 
-━━━ 내담자 ━━━
+━━━ 내담자 & 사주 명식 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hourTxt}
+${sajuInfo}
 상담 주제: ${topic}${partnerInfo}
 질문: ${q||'없음'}
 
 ━━━ 규칙 ━━━
+• 위 사주 명식을 반드시 그대로 사용. 절대 임의로 계산하지 말 것.
 • [말풍선] 태그로 정확히 5개. 5개 안 쓰면 실패.
 • 말풍선 하나에 2~3문장. 짧고 임팩트 있게.
 • 한자 절대 금지. ${name}님 호칭. 존댓말이지만 친근하게.
@@ -981,10 +1211,12 @@ function buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo){
 ❌ "이 카드는 새로운 시작을 의미합니다"  
 ✅ "어머, 이 카드 나왔네요! 이거 좋은 카드예요. 뭔가 새로 시작되는 기운이 딱~"
 
-━━━ 내담자 ━━━
+━━━ 내담자 & 사주 명식 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hour||'시간모름'}
+${(()=>{const s=calcSaju(birth,hour,gender);return s?`사주: 년${s.yp}/월${s.mp}/일${s.dp}/시${s.hp} | 일간:${s.ilgan} | 대운:${s.curDaeun}(${s.curDaeunAge}세) | 세운:${s.seun2026}`:`생년월일:${y}년${m}월${day}일`;})()}
 상담 주제: ${topic}${partnerInfo} / 질문: ${q||'없음'}
 타로 카드: ${cardStr}
+⚠️ 위 사주 명식을 그대로 사용. AI가 임의 계산 금지.
 
 ━━━ 핵심 규칙 ━━━
 • [말풍선] 태그로 정확히 5개 작성. 5개 미만이면 실패.

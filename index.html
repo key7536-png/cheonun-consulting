@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -263,6 +264,13 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
   <!-- 결과 -->
   <div id="consultResult"></div>
 
+  <!-- 왜요? 연계 빠른 질문 -->
+  <div id="whyLinkSection" style="display:none" class="card">
+    <div class="card-title" style="margin-bottom:10px">🤔 내담자가 물어볼 수 있는 질문</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:10px">클릭하면 "왜요?" 탭에서 이 내담자 맞춤 답변을 바로 받아요</p>
+    <div id="whyLinkBtns" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+  </div>
+
   <!-- 채팅 -->
   <div class="chat-wrap" id="consultChat">
     <div class="card-title" style="padding:0 2px 8px">💬 이어서 질문하기</div>
@@ -330,6 +338,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 <div id="whyPage" class="page">
   <div class="card">
     <div class="card-title">🤔 "왜요?" 즉시 답변 — 내담자 질문 대응</div>
+
+    <!-- 현재 상담 내담자 연계 배너 -->
+    <div id="whyContextBanner" style="display:none;background:linear-gradient(135deg,rgba(180,130,255,.13),rgba(255,185,0,.09));border:1px solid rgba(180,130,255,.35);border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:.78rem;line-height:1.7">
+      <span style="color:var(--gold2);font-weight:700">✦ 현재 상담 내담자</span><br>
+      <span id="whyContextText" style="color:#e0d8ff"></span><br>
+      <span style="color:var(--muted);font-size:.72rem">→ 아래 질문 선택 시 이 내담자 정보가 자동 반영됩니다</span>
+    </div>
+
     <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.7">
       내담자님이 "왜 그런 거예요?" 물어볼 때 바로 참고하세요.<br>
       카테고리 선택 → 질문 선택 → 복사해서 답변!
@@ -433,12 +449,12 @@ const GK_NOTIFY = 'ck_notify';
 const MODEL = 'gemini-2.5-flash';
 const API_URL = k => 'https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+k;
 
-// ★ 파일에 키를 저장하려면 saveToFile 버튼으로 자동 갱신
-const _EK = ["QVEuQWI4Uk42SkZiUWJyTnpaVmtzMFhtZXU3RFdPOU1tUmppSTdDa19lbmNtaHlYbHZFT1E=", "QVEuQWI4Uk42SnJEWTZQZ1UyTW1UREpfR0VhRzBGMUZ1WUlrOFN4WlcxWlRpMmNFUEp1VkE=", "QVEuQWI4Uk42Sk9NejVWQjhJcTRsdlpLaFVTcUpIdHV0dEVFSV9LeEVONGVTWmMwOXE3MkE=", "QVEuQWI4Uk42S1dnbmFnaEI2R2NJTWVCbkhJQTVHWDVTaTF5VXpKVUV5U0g4b2R6VUxZeEE=", "QVEuQWI4Uk42SlFpNHRoZnlVbC1iYlppU0RWTV93UFpDZHUwdndVVDQweUlmODdlOFdDdWc=", "QVEuQWI4Uk42S2k4VDJHQVJDYTdoYlJScVQ1VWoyYmFmdU51dERfT0FmdWl2aTQyMXVEb0E=", "QVEuQWI4Uk42SkJobE41THd0U2ZHQjcxVjJfakw2VENIc2RHVldWaWtfc3RlSG05MWk3R3c=", "QVEuQWI4Uk42SkFfaDg1YVhtMDlWVXQxQldkeDFpbWJxSWY1UmdFRnZ1OUNYMm5WOVFYWVE=", "QVEuQWI4Uk42TGpnWTF4cHIzMGc1cGFEWm92azNTWFg5UU1yNGFWVUVmdENlbXhmR1NkMGc=", "QVEuQWI4Uk42S2tqRVU0MlJwM0JqOXd4V2ZneFJCb0Zsbjlvc25UNmZjMWszUWtzZklxNWc="]; const SAVED_KEYS = _EK.map(k=>atob(k)); // 무료 키 목록
-const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK); // 유료 키
+const _EK = ["QVEuQWI4Uk42SkZiUWJyTnpaVmtzMFhtZXU3RFdPOU1tUmppSTdDa19lbmNtaHlYbHZFT1E=", "QVEuQWI4Uk42SnJEWTZQZ1UyTW1UREpfR0VhRzBGMUZ1WUlrOFN4WlcxWlRpMmNFUEp1VkE=", "QVEuQWI4Uk42Sk9NejVWQjhJcTRsdlpLaFVTcUpIdHV0dEVFSV9LeEVONGVTWmMwOXE3MkE=", "QVEuQWI4Uk42S1dnbmFnaEI2R2NJTWVCbkhJQTVHWDVTaTF5VXpKVUV5U0g4b2R6VUxZeEE=", "QVEuQWI4Uk42SlFpNHRoZnlVbC1iYlppU0RWTV93UFpDZHUwdndVVDQweUlmODdlOFdDdWc=", "QVEuQWI4Uk42S2k4VDJHQVJDYTdoYlJScVQ1VWoyYmFmdU51dERfT0FmdWl2aTQyMXVEb0E=", "QVEuQWI4Uk42SkJobE41THd0U2ZHQjcxVjJfakw2VENIc2RHVldWaWtfc3RlSG05MWk3R3c=", "QVEuQWI4Uk42SkFfaDg1YVhtMDlWVXQxQldkeDFpbWJxSWY1UmdFRnZ1OUNYMm5WOVFYWVE=", "QVEuQWI4Uk42TGpnWTF4cHIzMGc1cGFEWm92azNTWFg5UU1yNGFWVUVmdENlbXhmR1NkMGc=", "QVEuQWI4Uk42S2tqRVU0MlJwM0JqOXd4V2ZneFJCb0Zsbjlvc25UNmZjMWszUWtzZklxNWc="];
+const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc=';
+const SAVED_KEYS = _EK.map(k=>atob(k));
+const SAVED_PAID_KEY = atob(_EPK);
 
-let _keys = [], _ki = 0;
-let _paidKey = '';
+let _keys = [], _ki = 0;let _paidKey = '';
 let _usingPaid = false;
 let _notifySwitch = true;
 let _notifyPaid = true;
@@ -643,17 +659,17 @@ function updateBadge(){
 
 function saveToFile(){
   var content=document.documentElement.outerHTML;
-  // 무료 키 저장
-  content=content.replace("const _EK = ["QVEuQWI4Uk42SkZiUWJyTnpaVmtzMFhtZXU3RFdPOU1tUmppSTdDa19lbmNtaHlYbHZFT1E=", "QVEuQWI4Uk42SnJEWTZQZ1UyTW1UREpfR0VhRzBGMUZ1WUlrOFN4WlcxWlRpMmNFUEp1VkE=", "QVEuQWI4Uk42Sk9NejVWQjhJcTRsdlpLaFVTcUpIdHV0dEVFSV9LeEVONGVTWmMwOXE3MkE=", "QVEuQWI4Uk42S1dnbmFnaEI2R2NJTWVCbkhJQTVHWDVTaTF5VXpKVUV5U0g4b2R6VUxZeEE=", "QVEuQWI4Uk42SlFpNHRoZnlVbC1iYlppU0RWTV93UFpDZHUwdndVVDQweUlmODdlOFdDdWc=", "QVEuQWI4Uk42S2k4VDJHQVJDYTdoYlJScVQ1VWoyYmFmdU51dERfT0FmdWl2aTQyMXVEb0E=", "QVEuQWI4Uk42SkJobE41THd0U2ZHQjcxVjJfakw2VENIc2RHVldWaWtfc3RlSG05MWk3R3c=", "QVEuQWI4Uk42SkFfaDg1YVhtMDlWVXQxQldkeDFpbWJxSWY1UmdFRnZ1OUNYMm5WOVFYWVE=", "QVEuQWI4Uk42TGpnWTF4cHIzMGc1cGFEWm92azNTWFg5UU1yNGFWVUVmdENlbXhmR1NkMGc=", "QVEuQWI4Uk42S2tqRVU0MlJwM0JqOXd4V2ZneFJCb0Zsbjlvc25UNmZjMWszUWtzZklxNWc="]; const SAVED_KEYS = _EK.map(k=>atob(k));","const SAVED_KEYS = "+JSON.stringify(_keys)+";");
-  // 유료 키 저장
-  content=content.replace("const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK);","const _EPK = 'QVEuQWI4Uk42S3cyODY2a284NWluUjc2N2xzTG5FR0htdVZJTl9BUkxseVFvdWlzVEtNdXc='; const SAVED_PAID_KEY = atob(_EPK);");
+  var encFree=JSON.stringify(_keys.map(function(k){return btoa(k);}));
+  var encPaid=_paidKey?btoa(_paidKey):'';
+  content=content.replace(/const _EK = \[[^\]]*\];/,'const _EK = '+encFree+';');
+  content=content.replace(/const _EPK = '[^']*';/,"const _EPK = '"+encPaid+"';");
   var blob=new Blob([content],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
   a.href=url;a.download='천운_상담도구_키저장.html';
   document.body.appendChild(a);a.click();
   document.body.removeChild(a);URL.revokeObjectURL(url);
-  snack('💾 무료키'+_keys.length+'개 + 유료키 포함 파일 저장됨!');
+  snack('💾 키 포함 파일 저장됨!');
 }
 
 function openKeyModal(){ renderKeys(); const m=document.getElementById('keyModal'); m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
@@ -668,6 +684,7 @@ function go(id){
   document.getElementById(id+'Page').classList.add('on');
   const tabs = ['consulting','call','why'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('on');
+  if(id==='why') updateWhyContextBanner();
 }
 
 // ════════════════════════════════
@@ -785,6 +802,7 @@ async function startConsulting(){
     renderBubs(bubs, 'consultResult');
 
     lastConsultInfo = {name, gender, birth, hour, topic, q, mode: consultMode, cards: drawnCards.join('/')};
+    renderWhyLink(lastConsultInfo);
     chatHistory = [{role:'assistant', content: bubs.join('\n\n')}];
     document.getElementById('chatBox').innerHTML = '';
     document.getElementById('consultChat').style.display = 'block';
@@ -1029,6 +1047,84 @@ async function callQ(question){
 }
 
 // ════════════════════════════════
+// 왜요? 연계 로직
+// ════════════════════════════════
+
+// 주제별 연관 질문 매핑
+const WHY_LINK_MAP = {
+  '재회':    ['재회가 가능한가요? 언제쯤 될까요?','상대방이 저를 그리워하고 있나요?','먼저 연락해도 될까요?','재회하면 잘 될 수 있을까요?','왜 헤어지게 된 건가요? 사주로 보면?'],
+  '연애':    ['왜 저는 연애가 안 되는 거예요?','이 사람이 왜 저한테 이러는 거예요?','이 사람 마음이 왜 이렇게 안 열리는 거예요?','이 사람이 저를 좋아하는 건가요?','연락이 갑자기 줄었어요. 왜 그런 건가요?'],
+  '결혼':    ['결혼 운이 없다는 게 정말인가요?','결혼을 결정해도 될까요?','궁합이 안 좋으면 절대 안 되나요?','이 관계가 어디로 가는 건가요?'],
+  '직업':    ['왜 열심히 해도 돈이 안 모이나요?','이직하면 더 나아질까요?','지금 사업 시작해도 될까요?','취업이 잘 안 되는 이유가 뭔가요?','합격운이 있나요?'],
+  '재물':    ['왜 돈이 들어와도 나가버리는 거예요?','왜 투자할 때마다 손해를 보는 거예요?','돈 들어오는 시기가 언제예요?','주식/코인 해도 될까요?'],
+  '사업':    ['왜 지금은 사업이 잘 안 풀리나요?','지금 사업 시작해도 될까요?','왜 열심히 해도 돈이 안 모이나요?','부동산 투자 타이밍은요?'],
+  '운세':    ['왜 올해 이렇게 힘든 거예요?','왜 저는 이렇게 안 풀리는 거예요?','앞으로 좋아지는 시기가 언제예요?','올해 조심해야 할 게 뭐가 있나요?','제 팔자가 원래 이런 건가요?'],
+  '건강':    ['왜 올해 이렇게 힘든 거예요?','올해 조심해야 할 게 뭐가 있나요?','앞으로 좋아지는 시기가 언제예요?'],
+  '이사':    ['왜 올해 변화가 많이 생기는 건가요?','올해 조심해야 할 게 뭐가 있나요?','앞으로 좋아지는 시기가 언제예요?'],
+  '타로':    ['나쁜 카드가 나왔는데 정말 나쁜 건가요?','왜 같은 카드가 자꾸 나오나요?','역방향 카드는 무조건 나쁜 건가요?','카드가 미래를 바꿀 수 있나요?'],
+};
+
+function renderWhyLink(info){
+  const sec = document.getElementById('whyLinkSection');
+  const btns = document.getElementById('whyLinkBtns');
+  if(!sec || !btns) return;
+
+  // 주제에 맞는 질문 찾기
+  const topic = info.topic || '';
+  let qs = [];
+  for(const [key, arr] of Object.entries(WHY_LINK_MAP)){
+    if(topic.includes(key)){ qs = arr; break; }
+  }
+  // 못 찾으면 운세 기본
+  if(!qs.length) qs = WHY_LINK_MAP['운세'];
+
+  btns.innerHTML = qs.map(q =>
+    `<button class="q-btn" onclick="goWhyWithQ('${q.replace(/'/g,"\\'")}',this)">${q}</button>`
+  ).join('');
+  sec.style.display = 'block';
+}
+
+function goWhyWithQ(question, btn){
+  // 왜요 탭으로 이동
+  go('why');
+  // 배너 업데이트 (탭 이동 후 실행)
+  setTimeout(()=>{ askWhyWithContext(question); }, 50);
+}
+
+function updateWhyContextBanner(){
+  const banner = document.getElementById('whyContextBanner');
+  const text = document.getElementById('whyContextText');
+  if(!banner || !text) return;
+  if(lastConsultInfo && lastConsultInfo.name){
+    const info = lastConsultInfo;
+    const cardInfo = info.cards ? ` | 카드: ${info.cards}` : '';
+    text.textContent = `${info.name}님 · ${info.topic}${cardInfo}`;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+async function askWhyWithContext(question){
+  // 카테고리 자동 선택
+  const topic = lastConsultInfo.topic || '';
+  let cat = 'fortune';
+  if(topic.includes('재회')||topic.includes('이별')) cat='reunion';
+  else if(topic.includes('연애')||topic.includes('결혼')) cat='love';
+  else if(topic.includes('재물')||topic.includes('직업')||topic.includes('사업')) cat='money';
+  else if(topic.includes('타로')) cat='tarot';
+
+  // UI 카테고리 버튼 on 처리
+  document.querySelectorAll('.wcat').forEach(w=>w.classList.remove('on'));
+  const catIdx = {fortune:0,reunion:1,love:2,money:3,tarot:4};
+  const allWcats = document.querySelectorAll('.wcat');
+  if(allWcats[catIdx[cat]]) allWcats[catIdx[cat]].classList.add('on');
+  whyCat = cat;
+
+  await askWhy(question);
+}
+
+// ════════════════════════════════
 // 왜요? 탭
 // ════════════════════════════════
 let whyCat = 'fortune';
@@ -1143,28 +1239,47 @@ async function askWhy(question){
 
   const catNames = {fortune:'운세/기운', reunion:'재회/이별', love:'연애/결혼', money:'재물/직업', tarot:'타로'};
 
+  // ── 현재 상담 내담자 컨텍스트 자동 반영 ──
+  let clientCtx = '';
+  let clientName = '';
+  if(lastConsultInfo && lastConsultInfo.name){
+    const ci = lastConsultInfo;
+    const d = ci.birth ? new Date(ci.birth) : null;
+    const birthStr = d ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일생` : '';
+    const cardStr = ci.cards ? `\n뽑힌 타로 카드: ${ci.cards}` : '';
+    clientName = ci.name;
+    clientCtx = `\n\n━━━ 현재 상담 내담자 정보 (반드시 반영) ━━━\n이름: ${ci.name}(${ci.gender||''}) ${birthStr}\n상담 주제: ${ci.topic}${cardStr}\n이 내담자 상황에 맞게 구체적으로 답변. 이름으로 호칭.\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+  }
+
+  const nameHint = clientName ? ` ${clientName}님 상황을 예시로.` : '';
+  const nameCall = clientName ? ` ${clientName}님 호칭 사용.` : '';
+
   const prompt = `당신은 30년 경력 명리학·타로 전문 상담사 천운입니다.
 내담자가 "${question}" 라고 물었습니다.
 
-분야: ${catNames[whyCat]||'상담'}
+분야: ${catNames[whyCat]||'상담'}${clientCtx}
 
 아래 형식으로 답변하세요:
 
 [쉬운 설명]
-비유나 일상적인 예시를 들어 쉽고 따뜻하게 설명 (3~4문장)
+비유나 일상적인 예시를 들어 쉽고 따뜻하게 설명 (3~4문장).${nameHint}
 
 [전문 근거]
 명리학 또는 타로 이론 근거를 쉬운 말로 설명 (2~3문장). 한자 금지.
 
 [복사용 답변]
 내담자에게 바로 말할 수 있는 카카오톡 대화체 답변 (2~3문장). 
-"사실~", "이게~", "있잖아요~" 같은 자연스러운 시작. ${question.includes('왜')?'\"왜냐면~\"으로 이유 설명.':''}`;
+"사실~", "이게~", "있잖아요~" 같은 자연스러운 시작. ${question.includes('왜')?'\"왜냐면~\"으로 이유 설명.':''}${nameCall}`;
 
   try{
     const txt = await ai(prompt, 2048);
     const sections = txt.split(/\[(쉬운 설명|전문 근거|복사용 답변)\]/).filter(s=>s.trim());
     
+    const clientBadge = (lastConsultInfo && lastConsultInfo.name)
+      ? `<div style="font-size:.7rem;background:rgba(180,130,255,.15);border:1px solid rgba(180,130,255,.3);border-radius:8px;padding:5px 10px;margin-bottom:10px;color:#c8b8ff">✦ ${lastConsultInfo.name}님 맞춤 답변</div>`
+      : '';
     result.innerHTML = `
+      ${clientBadge}
       <div class="card-title" style="margin-bottom:10px">💡 "${question}"</div>
       ${sections.map((s,i)=>{
         const labels = ['쉬운 설명 💬','전문 근거 📚','복사용 답변 ✉️'];

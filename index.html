@@ -1301,7 +1301,7 @@ ${ctx}
 [말풍선]`;
 
   try{
-    const txt = await ai(prompt, 2048);
+    const txt = await ai(prompt, 4096);
     const answer = txt.replace(/\[말풍선\]/g,'').trim();
     box.innerHTML += `<div class="msg ai"><div class="bubble">${answer.replace(/\n/g,'<br>')}<br><button onclick="navigator.clipboard.writeText(this.parentElement.innerText.replace('복사','').trim()).then(()=>snack('복사됨 ✓'))" style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:4px">복사</button></div></div>`;
     box.scrollTop = box.scrollHeight;
@@ -1412,7 +1412,7 @@ ${sajuCtx}
 • 마지막은 따뜻한 응원으로 마무리.`;
 
   try{
-    const txt = await ai(prompt, 2048);
+    const txt = await ai(prompt, 4096);
     const bubs = parseBubs(txt);
     const wrap = document.getElementById('callAnswer');
     wrap.innerHTML = '';
@@ -1654,7 +1654,7 @@ async function askWhy(question){
 카카오톡 대화체 2문장. "사실~" 또는 "있잖아요~"로 시작.${clientName?` ${clientName}님 호칭.`:''}`;
 
   try{
-    const txt = await ai(prompt, 2048);
+    const txt = await ai(prompt, 4096);
     window._lastWhyTxt = txt;
 
     // ── 섹션 파싱 (인덱스 방식 — 가장 안정적) ──

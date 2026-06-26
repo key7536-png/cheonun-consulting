@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -200,18 +201,11 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
       <div class="client-btn-row" style="display:flex;gap:7px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="toggleClientList()" style="font-size:.75rem">📋 저장된 고객 불러오기</button>
         <button class="btn btn-ghost btn-sm" onclick="saveClient()" style="font-size:.75rem;border-color:var(--gold);color:var(--gold2)">💾 현재 고객 저장</button>
-        <button class="btn btn-ghost btn-sm" onclick="exportClients()" style="font-size:.75rem;border-color:#4caf84;color:#4caf84" title="고객 데이터 파일로 백업">📤 내보내기</button>
-        <label class="btn btn-ghost btn-sm" style="font-size:.75rem;border-color:#5b9bd5;color:#5b9bd5;cursor:pointer" title="백업 파일에서 고객 복원">📥 가져오기<input type="file" accept=".json" onchange="importClients(event)" style="display:none"></label>
+
       </div>
     </div>
     <div id="clientList" style="display:none;margin-top:12px;max-height:220px;overflow-y:auto"></div>
-    <div id="sessionBar" style="display:none;margin-top:10px;padding:8px 10px;background:rgba(76,175,132,.08);border:1px solid rgba(76,175,132,.25);border-radius:9px;font-size:.74rem;color:#4caf84;display:flex;align-items:center;justify-content:space-between">
-      <span>🔄 이전 상담 화면이 저장되어 있습니다</span>
-      <div style="display:flex;gap:6px">
-        <button onclick="restoreSession();document.getElementById('sessionBar').style.display='none'" style="background:rgba(76,175,132,.2);border:1px solid rgba(76,175,132,.4);color:#4caf84;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer">복원</button>
-        <button onclick="clearSession();document.getElementById('sessionBar').style.display='none'" style="background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer">초기화</button>
-      </div>
-    </div>
+
   </div>
 
   <div class="card">
@@ -338,6 +332,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 <div id="callPage" class="page">
   <div class="card">
     <div class="card-title">📞 전화상담 실시간 도우미</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-ghost btn-sm" onclick="toggleCallClientList()" style="font-size:.75rem">📋 저장된 고객 불러오기</button>
+    </div>
+    <div id="callClientList" style="display:none;margin-bottom:10px;max-height:200px;overflow-y:auto"></div>
     <div class="field"><label>내담자 이름</label><input id="callName" placeholder="예) 김미나님"></div>
     <div class="field"><label>생년월일</label><input id="callBirth" type="date"></div>
     <div class="row2">
@@ -863,7 +861,6 @@ async function startConsulting(){
     document.getElementById('chatBox').innerHTML = '';
     document.getElementById('consultChat').style.display = 'block';
     snack('분석 완료! 💬 추가 질문 가능 / 💾 고객 저장 가능');
-    setTimeout(saveSession, 300); // 화면 자동 보존
   } catch(e){
     document.getElementById('consultResult').innerHTML = `<div class="card" style="color:var(--red)">오류: ${e.message}</div>`;
   }
@@ -1309,7 +1306,6 @@ ${ctx}
     box.innerHTML += `<div class="msg ai"><div class="bubble">${answer.replace(/\n/g,'<br>')}<br><button onclick="navigator.clipboard.writeText(this.parentElement.innerText.replace('복사','').trim()).then(()=>snack('복사됨 ✓'))" style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:4px">복사</button></div></div>`;
     box.scrollTop = box.scrollHeight;
     chatHistory.push({role:'assistant', content: answer});
-    setTimeout(saveSession, 200); // 채팅 후 세션 저장
   } catch(e){
     box.innerHTML += `<div class="msg ai"><div class="bubble" style="color:var(--red)">오류: ${e.message}</div></div>`;
   }
@@ -1319,6 +1315,42 @@ ${ctx}
 // 전화상담 탭
 // ════════════════════════════════
 let callData = {};
+
+
+// 전화상담 탭 고객 불러오기
+function toggleCallClientList(){
+  const el = document.getElementById('callClientList');
+  if(el.style.display==='none'){
+    const clients = JSON.parse(lsGet(CK, '[]'));
+    if(!clients.length){
+      el.innerHTML = '<div style="font-size:.78rem;color:var(--muted);padding:8px">저장된 고객 없음</div>';
+    } else {
+      el.innerHTML = clients.map((c,i)=>`
+        <div onclick="loadCallClient(${i})" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--card2)">
+          <div style="flex:1">
+            <span style="color:var(--gold2);font-weight:700">${c.name}</span>
+            <span style="color:var(--muted);font-size:.74rem;margin-left:6px">${c.gender} · ${c.birth||'날짜미상'} · ${c.topic}</span>
+          </div>
+          <span style="font-size:.7rem;color:var(--muted)">${c.savedAt}</span>
+        </div>`).join('');
+    }
+    el.style.display='block';
+  } else {
+    el.style.display='none';
+  }
+}
+
+function loadCallClient(idx){
+  const clients = JSON.parse(lsGet(CK, '[]'));
+  const c = clients[idx];
+  if(!c) return;
+  document.getElementById('callName').value  = c.name;
+  document.getElementById('callBirth').value = c.birth||'';
+  document.getElementById('callGender').value= c.gender;
+  document.getElementById('callTopic').value = c.topic||'연애운';
+  document.getElementById('callClientList').style.display='none';
+  snack('📂 불러옴: '+c.name+'님');
+}
 
 async function startCall(){
   const name = document.getElementById('callName').value.trim() || '내담자';
@@ -1333,8 +1365,15 @@ async function startCall(){
   callData = {name, birth, gender, topic, y, m, day};
 
   // 기본 정보 표시
+  // 사주 계산
+  const callSaju = calcSaju(birth, '', gender);
+  const sajuLine = callSaju
+    ? `<span style="color:var(--purple2);font-size:.74rem">일간 ${callSaju.ilgan} · 대운 ${callSaju.curDaeun} · 세운 ${callSaju.seun2026}</span>`
+    : '';
+
   document.getElementById('callInfoBox').innerHTML = `
     <b style="color:var(--gold2)">${name}님</b> · ${gender} · ${y}년생<br>
+    ${sajuLine}<br>
     상담 주제: <b style="color:var(--gold2)">${topic}</b><br>
     <span style="color:var(--muted);font-size:.75rem">전화 중 나온 질문을 아래 버튼으로 바로 확인하세요</span>`;
 
@@ -1347,17 +1386,30 @@ async function callQ(question){
 
   document.getElementById('callAnswer').innerHTML = `<div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div>답변 생성 중...</div>`;
 
-  const {name, gender, y, m, day, topic} = callData;
+  const {name, gender, birth, topic} = callData;
+
+  // 사주 계산 연동
+  const saju = calcSaju(birth, '', gender);
+  const sajuCtx = saju
+    ? `사주: 년${saju.yp}/월${saju.mp}/일${saju.dp} | 일간:${saju.ilgan} | 대운:${saju.curDaeun}(${saju.curDaeunAge}세~) | 세운:${saju.seun2026}`
+    : `${callData.y}년 ${callData.m}월 ${callData.day}일생`;
 
   const prompt = `당신은 30년 경력 명리학 상담사 천운입니다.
-전화상담 중 내담자가 질문했습니다. 짧고 명확하게 2~3개 말풍선으로 답하세요.
+지금 ${name}님과 전화 통화 중입니다. 짧고 따뜻하게, 전화 통화체로.
 
-내담자: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생
-주 상담주제: ${topic}
+내담자: ${name}(${gender})
+${sajuCtx}
+주제: ${topic}
 지금 질문: "${question}"
 
-[말풍선] 태그 2~3개. 각 2~3문장. 명리학 근거 포함. 한자 금지. 전화 통화체로 (부드럽고 따뜻하게).
-마지막 말풍선은 "네, ${name}님~" 으로 시작해서 따뜻하게 마무리.`;
+━━━ 절대 금지 ━━━
+"나타냅니다" "의미합니다" "시사합니다" AI 보고서 말투 금지.
+
+━━━ 규칙 ━━━
+• [말풍선] 태그 3개. 각 2~3문장.
+• 위 사주 명식 그대로 사용. AI 임의계산 금지.
+• 전화 통화체 — "네~", "그게요~", "있잖아요~"
+• 마지막은 따뜻한 응원으로 마무리.`;
 
   try{
     const txt = await ai(prompt, 2048);
@@ -1411,15 +1463,17 @@ function renderWhyLink(info){
   if(!qs.length) qs = WHY_LINK_MAP['운세'];
 
   btns.innerHTML = qs.map(q =>
-    `<button class="q-btn" onclick="goWhyWithQ('${q.replace(/'/g,"\\'")}',this)">${q}</button>`
+    `<button class="q-btn" onclick="goWhyWithQ(this.dataset.q,this)" data-q="${q.replace(/'/g,'&#39;')}">${q}</button>`
   ).join('');
   sec.style.display = 'block';
 }
 
-function goWhyWithQ(question, btn){
-  // 왜요 탭으로 이동
+function goWhyWithQ(questionOrEl, btn){
+  // dataset.q 또는 직접 문자열 둘 다 처리
+  const question = (typeof questionOrEl === 'string') 
+    ? questionOrEl 
+    : (btn && btn.dataset && btn.dataset.q) ? btn.dataset.q : questionOrEl;
   go('why');
-  // 배너 업데이트 (탭 이동 후 실행)
   setTimeout(()=>{ askWhyWithContext(question); }, 50);
 }
 
@@ -1603,26 +1657,39 @@ async function askWhy(question){
     const txt = await ai(prompt, 2048);
     window._lastWhyTxt = txt;
 
-    // ── 안정적인 파싱 ──
-    function extractSection(tag){
-      const re = new RegExp('\\[' + tag + '\\]([\\s\\S]*?)(?=\\[|$)');
-      const m = txt.match(re);
-      return m ? m[1].trim() : '';
-    }
-    const easy   = extractSection('쉬운설명');
-    const theory = extractSection('전문근거');
-    const copy   = extractSection('복사용답변');
+    // ── 섹션 파싱 (인덱스 방식 — 가장 안정적) ──
+    const TAGS = ['쉬운설명','전문근거','복사용답변'];
+    const parsed = {};
+    TAGS.forEach(tag => {
+      const start = txt.indexOf('[' + tag + ']');
+      if(start === -1){ parsed[tag] = ''; return; }
+      const contentStart = start + tag.length + 2;
+      // 다음 [ 또는 끝까지
+      let end = txt.length;
+      for(const other of TAGS){
+        if(other === tag) continue;
+        const pos = txt.indexOf('[' + other + ']', contentStart);
+        if(pos !== -1 && pos < end) end = pos;
+      }
+      parsed[tag] = txt.slice(contentStart, end).trim();
+    });
+
+    const easy   = parsed['쉬운설명'];
+    const theory = parsed['전문근거'];
+    const copy   = parsed['복사용답변'];
 
     const clientBadge = clientName
       ? `<div style="font-size:.7rem;background:rgba(180,130,255,.15);border:1px solid rgba(180,130,255,.3);border-radius:8px;padding:6px 12px;margin-bottom:12px;color:#c8b8ff">✦ ${clientName}님 맞춤 답변</div>`
       : '';
 
-    function whyBlock(label, color, text, copyText){
+    // 복사 버튼 — data 속성 방식 (백틱 이스케이프 문제 완전 해결)
+    function whyBlock(label, color, text, dataKey){
       if(!text) return '';
+      const safeText = text.replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       return `
         <div style="font-size:.72rem;color:${color};font-weight:700;margin:12px 0 5px">${label}</div>
-        <div class="why-bub">${text.replace(/\n/g,'<br>')}
-          <br><button onclick="navigator.clipboard.writeText(\`${copyText.replace(/`/g,'\\`')}\`).then(()=>snack('복사됨 ✓'))"
+        <div class="why-bub" data-why="${dataKey}">${text.split(String.fromCharCode(10)).join('<br>')}
+          <br><button onclick="copyWhyBlock(this.parentElement)"
             style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:6px;padding:4px 8px;border:1px solid var(--border);border-radius:5px">📋 복사</button>
         </div>`;
     }
@@ -1630,15 +1697,22 @@ async function askWhy(question){
     result.innerHTML = `
       ${clientBadge}
       <div class="card-title" style="margin-bottom:4px">💡 "${question}"</div>
-      ${whyBlock('쉬운 설명 💬','var(--mint)', easy, easy)}
-      ${whyBlock('전문 근거 📚','var(--purple2)', theory, theory)}
-      ${whyBlock('복사용 답변 ✉️','var(--gold)', copy, copy)}
+      ${whyBlock('쉬운 설명 💬','var(--mint)', easy, 'easy')}
+      ${whyBlock('전문 근거 📚','var(--purple2)', theory, 'theory')}
+      ${whyBlock('복사용 답변 ✉️','var(--gold)', copy, 'copy')}
       <button class="copy-all-btn" onclick="copyWhyAll()" style="margin-top:10px">📋 복사용 답변 복사</button>
     `;
 
-    // 내용 없으면 원본 표시
+    // 파싱 실패 시 원본 전체 표시
     if(!easy && !theory && !copy){
-      result.innerHTML += `<div class="why-bub" style="margin-top:8px">${txt.replace(/\n/g,'<br>')}</div>`;
+      result.innerHTML = `
+        ${clientBadge}
+        <div class="card-title" style="margin-bottom:8px">💡 "${question}"</div>
+        <div class="why-bub">${txt.split(String.fromCharCode(10)).join('<br>')}
+          <br><button onclick="copyWhyBlock(this.parentElement)"
+            style="font-size:.65rem;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:6px;padding:4px 8px;border:1px solid var(--border);border-radius:5px">📋 복사</button>
+        </div>
+        <button class="copy-all-btn" onclick="copyWhyAll()" style="margin-top:10px">📋 복사</button>`;
     }
 
   } catch(e){
@@ -1652,7 +1726,29 @@ async function whyCustomAsk(){
   await askWhy(q);
 }
 
+// why-bub 블록 텍스트 복사
+function copyWhyBlock(el){
+  // br태그를 줄바꿈으로, 버튼 텍스트 제외
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll('button').forEach(b=>b.remove());
+  const text = clone.innerText || clone.textContent;
+  navigator.clipboard.writeText(text.trim()).then(()=>snack('복사됨 ✓'));
+}
+
 function copyWhyAll(){
+  if(!window._lastWhyTxt) return;
+  const txt = window._lastWhyTxt;
+  const start = txt.indexOf('[복사용답변]');
+  if(start === -1){
+    // 태그 없으면 전체 복사
+    navigator.clipboard.writeText(txt.trim()).then(()=>snack('전체 복사됨 ✓'));
+    return;
+  }
+  const copy = txt.slice(start + '[복사용답변]'.length).trim();
+  navigator.clipboard.writeText(copy).then(()=>snack('복사용 답변 복사됨 ✓'));
+}
+// (구버전 호환용 더미)
+function _copyWhyAllOld(){
   if(!window._lastWhyTxt) return;
   const match = window._lastWhyTxt.match(/\[복사용답변\]([\s\S]+?)(?:\[|$)/);
   const toCopy = match ? match[1].trim() : window._lastWhyTxt;
@@ -1669,7 +1765,6 @@ function togglePartner(){
 // 고객 저장/불러오기 + 화면 보존
 // ════════════════════════════════
 const CK  = 'cheonun_clients_v1';
-const SCK = 'cheonun_session_v1'; // 화면 보존용
 
 // ── 안전한 localStorage 래퍼 ──
 function lsGet(key, fallback='[]'){
@@ -1679,165 +1774,6 @@ function lsGet(key, fallback='[]'){
 function lsSet(key, val){
   try{ localStorage.setItem(key, val); return true; }
   catch(e){ return false; }
-}
-
-// ── 세션 자동 저장 (상담 화면 보존) ──
-function saveSession(){
-  try{
-    const consultResult = document.getElementById('consultResult')?.innerHTML || '';
-    const chatBoxHTML   = document.getElementById('chatBox')?.innerHTML || '';
-    const whyLinkHTML   = document.getElementById('whyLinkSection')?.innerHTML || '';
-    const whyLinkShow   = document.getElementById('whyLinkSection')?.style.display || 'none';
-    const consultChatShow = document.getElementById('consultChat')?.style.display || 'none';
-
-    const session = {
-      consultResult,
-      chatBoxHTML,
-      whyLinkHTML,
-      whyLinkShow,
-      consultChatShow,
-      lastConsultInfo,
-      chatHistory,
-      drawnCards,
-      spreadCount,
-      consultMode,
-      // 입력폼 값
-      form: {
-        name:   document.getElementById('cName')?.value || '',
-        gender: document.getElementById('cGender')?.value || '',
-        birth:  document.getElementById('cBirth')?.value || '',
-        hour:   document.getElementById('cHour')?.value || '',
-        topic:  document.getElementById('cTopic')?.value || '',
-        q:      document.getElementById('cQ')?.value || '',
-      },
-      savedAt: Date.now()
-    };
-    lsSet(SCK, JSON.stringify(session));
-  } catch(e){ console.warn('세션 저장 실패:', e); }
-}
-
-function restoreSession(){
-  try{
-    const raw = lsGet(SCK, '');
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    // 24시간 이내 세션만 복원
-    if(!s.savedAt || Date.now() - s.savedAt > 86400000) return;
-
-    // 상담 결과 복원
-    if(s.consultResult && document.getElementById('consultResult')){
-      document.getElementById('consultResult').innerHTML = s.consultResult;
-    }
-    if(s.chatBoxHTML && document.getElementById('chatBox')){
-      document.getElementById('chatBox').innerHTML = s.chatBoxHTML;
-    }
-    if(s.whyLinkHTML && document.getElementById('whyLinkSection')){
-      document.getElementById('whyLinkSection').innerHTML = s.whyLinkHTML;
-      document.getElementById('whyLinkSection').style.display = s.whyLinkShow || 'none';
-    }
-    if(document.getElementById('consultChat')){
-      document.getElementById('consultChat').style.display = s.consultChatShow || 'none';
-    }
-
-    // 변수 복원
-    if(s.lastConsultInfo) lastConsultInfo = s.lastConsultInfo;
-    if(s.chatHistory)     chatHistory = s.chatHistory;
-    if(s.drawnCards)      drawnCards = s.drawnCards;
-    if(s.spreadCount)     spreadCount = s.spreadCount;
-    if(s.consultMode)     consultMode = s.consultMode;
-
-    // 입력폼 복원
-    if(s.form){
-      if(document.getElementById('cName'))   document.getElementById('cName').value   = s.form.name;
-      if(document.getElementById('cGender')) document.getElementById('cGender').value = s.form.gender;
-      if(document.getElementById('cBirth'))  document.getElementById('cBirth').value  = s.form.birth;
-      if(document.getElementById('cHour'))   document.getElementById('cHour').value   = s.form.hour;
-      if(document.getElementById('cTopic'))  document.getElementById('cTopic').value  = s.form.topic;
-      if(document.getElementById('cQ'))      document.getElementById('cQ').value      = s.form.q;
-    }
-
-    if(s.consultResult && s.consultResult.length > 50){
-      snack('🔄 이전 상담 화면 복원됨');
-      // 세션바 숨기기 (이미 복원됨)
-      const sb = document.getElementById('sessionBar');
-      if(sb) sb.style.display = 'none';
-    }
-  } catch(e){ console.warn('세션 복원 실패:', e); }
-}
-
-// ── 저장된 세션 있는지 확인해서 배너 표시 ──
-function checkSessionBanner(){
-  try{
-    const raw = lsGet(SCK, '');
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    if(!s.savedAt || Date.now() - s.savedAt > 86400000) return;
-    if(s.consultResult && s.consultResult.length > 50){
-      const sb = document.getElementById('sessionBar');
-      if(sb && !document.getElementById('consultResult')?.innerHTML){
-        sb.style.display = 'flex';
-      }
-    }
-  } catch(e){}
-}
-
-function clearSession(){
-  try{ localStorage.removeItem(SCK); } catch(e){}
-  snack('🗑 화면 초기화됨');
-  document.getElementById('consultResult').innerHTML = '';
-  document.getElementById('chatBox').innerHTML = '';
-  document.getElementById('whyLinkSection').style.display = 'none';
-  document.getElementById('consultChat').style.display = 'none';
-  lastConsultInfo = {};
-  chatHistory = [];
-  drawnCards = [];
-}
-
-// ── 고객 내보내기 (JSON 파일 다운로드) ──
-function exportClients(){
-  try{
-    const clients = JSON.parse(lsGet(CK, '[]'));
-    if(!clients.length){ snack('저장된 고객이 없습니다.'); return; }
-    const data = JSON.stringify(clients, null, 2);
-    const blob = new Blob([data], {type:'application/json'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    const date = new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'');
-    a.href = url;
-    a.download = `천운_고객목록_${date}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    snack(`📤 ${clients.length}명 내보내기 완료!`);
-  } catch(e){ snack('내보내기 실패: '+e.message); }
-}
-
-// ── 고객 가져오기 (JSON 파일 업로드) ──
-function importClients(event){
-  const file = event.target.files?.[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const imported = JSON.parse(e.target.result);
-      if(!Array.isArray(imported)) throw new Error('올바른 형식이 아닙니다.');
-      
-      // 기존 고객과 병합 (이름 중복 시 새 데이터 우선)
-      const existing = JSON.parse(lsGet(CK, '[]'));
-      const merged = [...imported];
-      existing.forEach(ec => {
-        if(!merged.find(ic => ic.name === ec.name)) merged.push(ec);
-      });
-      if(merged.length > 200) merged.splice(200);
-      
-      lsSet(CK, JSON.stringify(merged));
-      snack(`📥 ${imported.length}명 가져오기 완료! (총 ${merged.length}명)`);
-      renderClientList();
-    } catch(err){
-      snack('가져오기 실패: '+err.message);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = ''; // 같은 파일 재업로드 가능하게
 }
 
 function saveClient(){
@@ -1878,7 +1814,7 @@ function deleteClient(idx, e){
   e.stopPropagation();
   const clients = JSON.parse(lsGet(CK, '[]'));
   clients.splice(idx,1);
-  localStorage.setItem(CK, JSON.stringify(clients));
+  lsSet(CK, JSON.stringify(clients));
   renderClientList();
 }
 
@@ -1913,12 +1849,6 @@ const _origStart = startConsulting;
 // 초기화
 loadKeys();
 setWcat(document.querySelector('.wcat.on'), 'fortune');
-
-// 페이지 로드 시 이전 화면 복원
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(restoreSession, 100);
-  setTimeout(checkSessionBanner, 200);
-});
 
 if(_keys.length===0 && !IS_ARTIFACT) setTimeout(openKeyModal, 600);
 

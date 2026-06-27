@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -344,7 +343,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
       </div>
       <div class="field"><label>상담 주제</label>
         <select id="callTopic">
-          <option>연애운</option><option>결혼운</option><option>재물운</option><option>직업운</option><option>종합운</option>
+          <option>재회운 ★</option><option>연애운</option><option>결혼운</option><option>재물운</option><option>직업운</option><option>종합운</option>
         </select>
       </div>
     </div>
@@ -360,22 +359,67 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
 
     <div class="card">
       <div class="card-title">💬 전화 중 나온 질문 → 바로 답변</div>
-      <div class="quick-btns">
-        <button class="q-btn" onclick="callQ('지금 연애 될까요?')">❤️ 연애 될까요?</button>
-        <button class="q-btn" onclick="callQ('이 사람이 나한테 관심 있을까요?')">👀 관심 있을까요?</button>
-        <button class="q-btn" onclick="callQ('언제 결혼할 수 있을까요?')">💍 결혼 시기</button>
-        <button class="q-btn" onclick="callQ('돈이 들어오는 시기가 언제예요?')">💰 돈 들어오는 시기</button>
-        <button class="q-btn" onclick="callQ('직장을 옮겨야 할까요?')">🏢 이직 시기</button>
-        <button class="q-btn" onclick="callQ('지금 사업 시작해도 될까요?')">🚀 사업 타이밍</button>
-        <button class="q-btn" onclick="callQ('올해 건강 조심할 게 있나요?')">🏥 건강 주의</button>
-        <button class="q-btn" onclick="callQ('이사 가도 괜찮을까요?')">🏠 이사 시기</button>
-        <button class="q-btn" onclick="callQ('지금 힘든 이유가 뭔가요?')">😔 힘든 이유</button>
-        <button class="q-btn" onclick="callQ('언제쯤 좋아질까요?')">🌟 좋아지는 시기</button>
+
+      <!-- 주제별 빠른 질문 탭 -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="wcat on" id="cqTab0" onclick="setCqTab(0)" style="font-size:.72rem">💔 재회/이별</button>
+        <button class="wcat" id="cqTab1" onclick="setCqTab(1)" style="font-size:.72rem">❤️ 연애/결혼</button>
+        <button class="wcat" id="cqTab2" onclick="setCqTab(2)" style="font-size:.72rem">💰 재물/직업</button>
+        <button class="wcat" id="cqTab3" onclick="setCqTab(3)" style="font-size:.72rem">🌟 운세/기타</button>
       </div>
-      <div class="field" style="margin-top:8px">
-        <input id="callCustomQ" placeholder="직접 입력..." onkeydown="if(event.key==='Enter')callQ(document.getElementById('callCustomQ').value)">
+
+      <!-- 재회/이별 질문 -->
+      <div id="cqPanel0" class="quick-btns">
+        <button class="q-btn" onclick="callQ('재회가 가능할까요?')">재회 가능할까요?</button>
+        <button class="q-btn" onclick="callQ('언제쯤 연락이 올까요?')">연락 오는 시기</button>
+        <button class="q-btn" onclick="callQ('상대방이 저를 그리워하고 있나요?')">상대방 마음</button>
+        <button class="q-btn" onclick="callQ('먼저 연락해도 될까요?')">먼저 연락해도 될까요?</button>
+        <button class="q-btn" onclick="callQ('재회하면 잘 될 수 있을까요?')">재회하면 잘 될까요?</button>
+        <button class="q-btn" onclick="callQ('왜 헤어지게 된 건지 사주로 봐주세요')">헤어진 이유</button>
+        <button class="q-btn" onclick="callQ('상대방이 다른 사람 만나고 있나요?')">다른 사람 있나요?</button>
+        <button class="q-btn" onclick="callQ('지금 이 감정을 정리해야 할까요?')">정리해야 할까요?</button>
       </div>
-      <div id="callAnswer" class="bubs-wrap"></div>
+      <!-- 연애/결혼 질문 -->
+      <div id="cqPanel1" class="quick-btns" style="display:none">
+        <button class="q-btn" onclick="callQ('지금 연애 될까요?')">연애 될까요?</button>
+        <button class="q-btn" onclick="callQ('이 사람이 나한테 관심 있을까요?')">관심 있을까요?</button>
+        <button class="q-btn" onclick="callQ('언제 결혼할 수 있을까요?')">결혼 시기</button>
+        <button class="q-btn" onclick="callQ('이 사람이랑 잘 될 수 있을까요?')">잘 될 수 있을까요?</button>
+        <button class="q-btn" onclick="callQ('궁합이 어떤가요?')">궁합</button>
+        <button class="q-btn" onclick="callQ('연락이 왜 줄었을까요?')">연락이 줄었어요</button>
+      </div>
+      <!-- 재물/직업 질문 -->
+      <div id="cqPanel2" class="quick-btns" style="display:none">
+        <button class="q-btn" onclick="callQ('돈이 들어오는 시기가 언제예요?')">돈 들어오는 시기</button>
+        <button class="q-btn" onclick="callQ('직장을 옮겨야 할까요?')">이직 시기</button>
+        <button class="q-btn" onclick="callQ('지금 사업 시작해도 될까요?')">사업 타이밍</button>
+        <button class="q-btn" onclick="callQ('왜 돈이 모이지 않는 건가요?')">돈이 안 모여요</button>
+        <button class="q-btn" onclick="callQ('합격운이 있나요?')">합격운</button>
+      </div>
+      <!-- 운세/기타 질문 -->
+      <div id="cqPanel3" class="quick-btns" style="display:none">
+        <button class="q-btn" onclick="callQ('올해 건강 조심할 게 있나요?')">건강 주의</button>
+        <button class="q-btn" onclick="callQ('이사 가도 괜찮을까요?')">이사 시기</button>
+        <button class="q-btn" onclick="callQ('지금 힘든 이유가 뭔가요?')">힘든 이유</button>
+        <button class="q-btn" onclick="callQ('언제쯤 좋아질까요?')">좋아지는 시기</button>
+        <button class="q-btn" onclick="callQ('올해 조심해야 할 게 뭐가 있나요?')">올해 주의사항</button>
+        <button class="q-btn" onclick="callQ('제 팔자가 원래 이런 건가요?')">팔자 질문</button>
+      </div>
+
+      <div class="field" style="margin-top:10px;display:flex;gap:7px">
+        <input id="callCustomQ" placeholder="직접 입력..." style="flex:1"
+          onkeydown="if(event.key==='Enter'){callQ(this.value);}">
+        <button class="btn btn-ghost btn-sm" onclick="callQ(document.getElementById('callCustomQ').value)">전송</button>
+      </div>
+    </div>
+
+    <!-- 대화 누적창 -->
+    <div class="card" id="callChatCard" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="card-title" style="margin:0">📝 전화상담 대화</div>
+        <button onclick="clearCallChat()" style="font-size:.7rem;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer">대화 초기화</button>
+      </div>
+      <div id="callChatLog" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:10px"></div>
     </div>
   </div>
 </div>
@@ -448,7 +492,11 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
       
       <!-- 한꺼번에 붙여넣기 -->
       <textarea id="bulkKeyInput" placeholder="키를 여러 개 한꺼번에 붙여넣으세요&#10;(줄바꿈으로 구분, 최대 10개)&#10;&#10;AQ.Ab8RN...&#10;AQ.Cd9KM...&#10;AIzaSy..." style="width:100%;background:#080810;border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--text);font-size:.76rem;min-height:90px;resize:vertical;font-family:monospace;margin-bottom:8px;outline:none"></textarea>
-      <button onclick="addBulkKeys()" style="width:100%;padding:9px;border-radius:9px;background:var(--gold);color:#1a0a00;border:none;font-weight:700;font-size:.82rem;cursor:pointer;margin-bottom:10px">+ 한꺼번에 추가</button>
+      <div style="display:flex;gap:7px;margin-bottom:6px">
+        <button onclick="addBulkKeys()" style="flex:1;padding:9px;border-radius:9px;background:var(--gold);color:#1a0a00;border:none;font-weight:700;font-size:.82rem;cursor:pointer">✦ 새 키로 교체 저장</button>
+        <button onclick="clearAllKeys()" style="background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.3);color:#ff8080;border-radius:9px;padding:0 14px;font-size:.78rem;cursor:pointer;white-space:nowrap">🗑 초기화</button>
+      </div>
+      <div style="font-size:.7rem;color:var(--muted);margin-bottom:10px;line-height:1.6">※ 기존 키 모두 지우고 입력한 키로만 교체합니다</div>
       
       <!-- 등록된 무료 키 목록 -->
       <div id="freeKeyList" style="max-height:160px;overflow-y:auto"></div>
@@ -479,7 +527,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6;}
     </div>
 
     <div style="display:flex;gap:8px">
-      <button onclick="saveToFile()" style="flex:1;padding:11px;border-radius:10px;background:#1a2a1a;border:1px solid #3a5a3a;color:#7aaa7a;font-size:.78rem;cursor:pointer">💾 키 포함 파일저장</button>
+
       <button onclick="closeKeyModal()" style="flex:1;padding:11px;border-radius:10px;background:var(--gold);border:none;color:#1a0a00;font-weight:700;font-size:.82rem;cursor:pointer">완료</button>
     </div>
   </div>
@@ -606,12 +654,15 @@ async function ai(prompt, maxT){
 }
 
 function loadKeys(){
-  // 무료 키 로드
-  _keys = [...SAVED_KEYS];
+  // 무료 키 로드 — localStorage에 저장된 키가 있으면 그것만 사용
   try{
     const stored = JSON.parse(localStorage.getItem(GK)||'[]');
-    stored.forEach(function(k){ if(!_keys.includes(k)) _keys.push(k); });
-  }catch(e){}
+    if(stored.length > 0){
+      _keys = stored; // localStorage 우선 (사용자가 직접 등록한 키)
+    } else {
+      _keys = [...SAVED_KEYS]; // 없으면 내장 키 사용
+    }
+  }catch(e){ _keys = [...SAVED_KEYS]; }
 
   // 유료 키 로드
   _paidKey = SAVED_PAID_KEY || localStorage.getItem(GK_PAID) || '';
@@ -653,15 +704,26 @@ function addBulkKeys(){
   const raw = document.getElementById('bulkKeyInput').value.trim();
   if(!raw){ snack('키를 입력해주세요.'); return; }
   const lines = raw.split(/[\n,]+/).map(k=>k.trim()).filter(k=>k.length>10);
-  let added = 0;
-  for(const k of lines){
-    if(_keys.length >= 10){ snack('최대 10개까지 등록 가능합니다.'); break; }
-    if(!_keys.includes(k)){ _keys.push(k); added++; }
-  }
+  if(lines.length === 0){ snack('올바른 키가 없습니다.'); return; }
+  // 기존 키 전부 교체 (섞이지 않게)
+  _keys = lines.slice(0, 10);
   saveKeys();
   document.getElementById('bulkKeyInput').value = '';
   renderKeys(); updateBadge();
-  snack(`✅ ${added}개 추가됨 (총 ${_keys.length}개)`);
+  snack(`✅ ${_keys.length}개 키로 교체됨 (기존 키 초기화)`);
+}
+
+// 키 전체 초기화
+function clearAllKeys(){
+  if(!confirm('저장된 키를 모두 삭제하고 초기화할까요?')) return;
+  _keys = [];
+  _paidKey = '';
+  localStorage.removeItem(GK);
+  localStorage.removeItem(GK_PAID);
+  renderKeys(); updateBadge();
+  const badge = document.getElementById('paidKeyBadge');
+  if(badge){ badge.textContent='미등록'; badge.style.background='#2a1a00'; badge.style.color='#c09040'; }
+  snack('🗑 키 전체 초기화됨 — 새 키를 입력해주세요');
 }
 
 function addKey(){
@@ -703,21 +765,6 @@ function updateBadge(){
   if(IS_ARTIFACT){b.textContent='✅ Claude AI';b.style.color='#4caf84';b.style.borderColor='#2a4a2a';return;}
   if(_keys.length>0){b.textContent='✅ Gemini '+_keys.length+'개';b.style.color='#4caf84';b.style.borderColor='#2a4a2a';}
   else{b.textContent='🔑 키 설정';b.style.color='var(--muted)';b.style.borderColor='#333';}
-}
-
-function saveToFile(){
-  var content=document.documentElement.outerHTML;
-  var encFree=JSON.stringify(_keys.map(function(k){return btoa(k);}));
-  var encPaid=_paidKey?btoa(_paidKey):'';
-  content=content.replace(/const _EK = \[[^\]]*\];/,'const _EK = '+encFree+';');
-  content=content.replace(/const _EPK = '[^']*';/,"const _EPK = '"+encPaid+"';");
-  var blob=new Blob([content],{type:'text/html;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='천운_상담도구_키저장.html';
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
-  snack('💾 키 포함 파일 저장됨!');
 }
 
 function openKeyModal(){ renderKeys(); const m=document.getElementById('keyModal'); m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; }
@@ -912,7 +959,7 @@ function renderSajuTable(birth, hour, gender, name){
       <div style="font-size:.74rem;color:var(--muted);line-height:1.9">
         일간 <span style="color:var(--gold2);font-weight:700">${saju.dp[0]}</span> · 
         현재 대운 <span style="color:var(--purple2);font-weight:700">${saju.curDaeun}</span>(${saju.curDaeunAge}세~) · 
-        세운 <span style="color:var(--mint);font-weight:700">${saju.seun2026}</span>(2026)
+        세운 <span style="color:var(--mint);font-weight:700">${saju.seun2026}</span>(${saju.thisYear})
       </div>
     </div>`;
   el.style.display = 'block';
@@ -1033,7 +1080,8 @@ function calcSaju(birthStr, hourStr, gender){
   const daeun = _calcDaeun(y,m,day,gender);
   
   // 현재 대운 계산 (2026년 기준)
-  const currentYear = 2026;
+  const currentYear = new Date().getFullYear(); // 실제 현재 연도 자동 인식
+  const nextYear = currentYear + 1;
   const age = currentYear - y;
   const daeunNum = daeun.startAge;
   
@@ -1056,10 +1104,10 @@ function calcSaju(birthStr, hourStr, gender){
     if(age >= de.startAge) curDaeun = de;
   }
   
-  // 세운 (2026년)
-  const seunIdx = ((2026-1984)%60+60)%60;
-  const seun2026 = _gz(seunIdx);
-  const seunIdx27 = ((2027-1984)%60+60)%60;
+  // 세운 — 현재 연도 자동 계산
+  const seunIdx = ((currentYear-1984)%60+60)%60;
+  const seun2026 = _gz(seunIdx); // 변수명 유지 (호환성)
+  const seunIdx27 = ((nextYear-1984)%60+60)%60;
   const seun2027 = _gz(seunIdx27);
   
   return {
@@ -1070,9 +1118,67 @@ function calcSaju(birthStr, hourStr, gender){
     curDaeun: curDaeun.pillar,
     curDaeunAge: curDaeun.startAge,
     seun2026, seun2027,
+    thisYear: currentYear,
+    nextYear: nextYear,
     age,
     pillarsText: `년주 ${yp} / 월주 ${mp} / 일주 ${dp} / 시주 ${hp}`
   };
+}
+
+
+// ════════════════════════════════
+// 답변 다양성 엔진
+// ════════════════════════════════
+
+// 분석 각도 목록 (매번 다른 각도 강제)
+const ANALYSIS_ANGLES = [
+  {name:'일간 특성', hint:'일간(일주 천간)의 오행 특성과 성격에서 출발해서 분석하세요. 이 사람이 타고난 기질이 어떻게 이 상황에 영향을 주는지 중심으로.'},
+  {name:'대운 흐름', hint:'현재 대운의 천간지지가 어떤 에너지를 만들어내는지 중심으로 분석하세요. 대운이 바뀌는 시기와 그 의미를 구체적으로.'},
+  {name:'올해 세운', hint:'올해 세운의 오행이 이 사람 사주와 어떻게 작용하는지 중심으로. 올해 특히 어떤 달이 중요한지 월별로.'},
+  {name:'월주 분석', hint:'월주(생월의 기운)가 이 사람의 삶에 어떤 패턴을 만드는지 중심으로. 성장 환경과 현재 상황의 연결고리를.'},
+  {name:'일주 궁합', hint:'일주 전체(천간+지지)의 조합이 가진 특별한 의미와 이 사람의 대인관계 패턴을 중심으로.'},
+  {name:'용신/기신', hint:'이 사람에게 힘이 되는 기운(용신)과 조심해야 할 기운(기신)을 중심으로. 일상에서 활용할 수 있는 구체적인 방법으로.'},
+  {name:'시기와 흐름', hint:'앞으로 3~6개월의 월별 흐름을 구체적으로. "○월에는~", "○월 지나면~" 식으로 시기를 명확히.'},
+  {name:'감정과 심리', hint:'사주에서 보이는 이 사람의 감정 패턴과 내면의 흐름 중심으로. 지금 마음속에서 일어나는 것들을 공감하며.'},
+];
+
+// 상담 카운터 (같은 주제 반복 시 각도 순환)
+const _angleCount = {};
+
+function getAngle(topic) {
+  const key = topic || 'general';
+  if(!_angleCount[key]) _angleCount[key] = 0;
+  const angle = ANALYSIS_ANGLES[_angleCount[key] % ANALYSIS_ANGLES.length];
+  _angleCount[key]++;
+  return angle;
+}
+
+// 다양한 비유 풀 (매번 다른 비유 사용)
+const METAPHORS = [
+  '봄에 씨앗이 땅속에서 준비하다가 때가 되면 싹을 틔우듯',
+  '파도가 쉬지 않고 치다가 어느 순간 잔잔해지듯',
+  '겨울이 가장 추울 때가 봄이 가장 가까운 때이듯',
+  '터널을 달리는 기차가 출구가 없어 보여도 반드시 끝이 있듯',
+  '밤하늘이 가장 어두울 때 별이 가장 밝게 빛나듯',
+  '강물이 바위에 막혀도 결국 돌아가서 흐르듯',
+  '매화가 눈 속에서도 꽃을 피우듯',
+  '나무가 폭풍에 흔들려도 뿌리는 더 깊이 내리듯',
+];
+
+function getMetaphor() {
+  return METAPHORS[Math.floor(Math.random() * METAPHORS.length)];
+}
+
+// 이미 한 말 추적 (전화상담용)
+function getSaidTopics(history) {
+  if(!history || history.length === 0) return '';
+  const topics = [];
+  if(history.some(h => h.a && h.a.includes('대운'))) topics.push('대운');
+  if(history.some(h => h.a && h.a.includes('세운'))) topics.push('세운');
+  if(history.some(h => h.a && h.a.includes('일간'))) topics.push('일간 특성');
+  if(history.some(h => h.a && h.a.includes('월'))) topics.push('월별 시기');
+  if(topics.length === 0) return '';
+  return '\n⚠️ 이미 언급한 내용: ' + topics.join(', ') + ' → 이 내용과 겹치지 않게 새로운 각도로만 답하세요.';
 }
 
 function buildSajuPrompt(name, gender, birth, hour, topic, q, partnerInfo){
@@ -1087,12 +1193,21 @@ function buildSajuPrompt(name, gender, birth, hour, topic, q, partnerInfo){
   년주: ${saju.yp} / 월주: ${saju.mp} / 일주: ${saju.dp} / 시주: ${saju.hp}
   일간: ${saju.ilgan}
   현재 대운: ${saju.curDaeun} (${saju.curDaeunAge}세 시작)
-  2026년 세운: ${saju.seun2026} / 2027년 세운: ${saju.seun2027}
+  올해(${saju.thisYear}년) 세운: ${saju.seun2026} / 내년(${saju.nextYear}년) 세운: ${saju.seun2027}
   현재 나이: ${saju.age}세` : `생년월일: ${y}년 ${m}월 ${day}일`;
+
+  // 이번 상담 각도 결정
+  const _angle = getAngle(topic);
+  const _metaphor = getMetaphor();
 
   return `당신은 30년 경력의 명리학 전문 상담사 천운입니다.
 지금 ${name}님과 카카오톡으로 실시간 상담 중이에요.
 동네 언니나 오빠처럼 편하고 따뜻하게, 사람 냄새 나는 말투로 써주세요.
+
+━━━ 이번 상담 핵심 각도 (반드시 이 각도 중심으로) ━━━
+분석 포인트: ${_angle.name}
+${_angle.hint}
+비유 힌트: "${_metaphor}" 이런 식의 비유를 자연스럽게 하나 녹여서.
 
 ━━━ 절대 금지 ━━━
 "~나타냅니다" "~의미합니다" "~시사합니다" "~상징합니다" "~할 수 있습니다"
@@ -1144,9 +1259,16 @@ function buildTarotPrompt(name, topic, q, partnerInfo){
   const cardCount = drawnCards.length;
   const totalBubs = Math.max(5, cardCount + 1);
 
+  const _tAngle = getAngle(topic + '_tarot');
+  const _tMetaphor = getMetaphor();
+
   return `당신은 20년 경력 타로 상담사 천운입니다.
 지금 ${name}님과 카카오톡으로 타로 상담 중이에요.
 카드를 같이 보면서 이야기 나누듯, 편하고 따뜻한 말투로 써주세요.
+
+━━━ 이번 리딩 핵심 각도 ━━━
+${_tAngle.hint}
+비유: "${_tMetaphor}" 느낌으로 한 번 자연스럽게.
 
 ━━━ 절대 금지 ━━━
 "~나타냅니다" "~의미합니다" "~시사합니다" "~상징합니다" "~할 수 있습니다"
@@ -1187,14 +1309,26 @@ ${totalBubs > cardCount + 1 ? `[말풍선]\n카드들의 전체 흐름을 보면
 function buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo){
   const d = new Date(birth);
   const y = d.getFullYear(), m = d.getMonth()+1, day = d.getDate();
+  // 중첩 백틱 방지 — 사주 미리 계산
+  const _bs = calcSaju(birth, hour, gender);
+  const _bsCtx = _bs
+    ? '사주: 년'+_bs.yp+'/월'+_bs.mp+'/일'+_bs.dp+'/시'+_bs.hp+' | 일간:'+_bs.ilgan+' | 대운:'+_bs.curDaeun+'('+_bs.curDaeunAge+'세) | 세운:'+_bs.seun2026
+    : y+'년 '+m+'월 '+day+'일생';
   const cardStr = drawnCards.map((c,i)=>{
     const pos = SPREAD_NAMES[spreadCount][i]||`카드${i+1}`;
     return `${pos}: ${c}`;
   }).join(' / ');
 
+  const _bAngle = getAngle(topic + '_both');
+  const _bMetaphor = getMetaphor();
+
   return `당신은 30년 경력 명리학·타로 통합 상담사 천운입니다.
 지금 ${name}님과 카카오톡으로 실시간 상담 중입니다.
 사주와 타로 두 개를 같이 보면서 이야기를 풀어가듯, 친근한 티키타카 말투로 작성하세요.
+
+━━━ 이번 통합 분석 각도 ━━━
+${_bAngle.hint}
+비유: "${_bMetaphor}" 느낌으로 자연스럽게 하나.
 
 ━━━ 절대 금지 표현 ━━━
 "~을 나타냅니다" "~을 의미합니다" "~라고 할 수 있습니다" "~음을 시사합니다"
@@ -1209,7 +1343,7 @@ function buildBothPrompt(name, gender, birth, hour, topic, q, partnerInfo){
 
 ━━━ 내담자 & 사주 명식 ━━━
 이름: ${name}(${gender}) / ${y}년 ${m}월 ${day}일생 / ${hour||'시간모름'}
-${(()=>{const s=calcSaju(birth,hour,gender);return s?`사주: 년${s.yp}/월${s.mp}/일${s.dp}/시${s.hp} | 일간:${s.ilgan} | 대운:${s.curDaeun}(${s.curDaeunAge}세) | 세운:${s.seun2026}`:`생년월일:${y}년${m}월${day}일`;})()}
+${_bsCtx}
 상담 주제: ${topic}${partnerInfo} / 질문: ${q||'없음'}
 타로 카드: ${cardStr}
 ⚠️ 위 사주 명식을 그대로 사용. AI가 임의 계산 금지.
@@ -1315,6 +1449,7 @@ ${ctx}
 // 전화상담 탭
 // ════════════════════════════════
 let callData = {};
+let callHistory = []; // 전화상담 대화 기록
 
 
 // 전화상담 탭 고객 불러오기
@@ -1325,14 +1460,15 @@ function toggleCallClientList(){
     if(!clients.length){
       el.innerHTML = '<div style="font-size:.78rem;color:var(--muted);padding:8px">저장된 고객 없음</div>';
     } else {
-      el.innerHTML = clients.map((c,i)=>`
-        <div onclick="loadCallClient(${i})" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--card2)">
-          <div style="flex:1">
-            <span style="color:var(--gold2);font-weight:700">${c.name}</span>
-            <span style="color:var(--muted);font-size:.74rem;margin-left:6px">${c.gender} · ${c.birth||'날짜미상'} · ${c.topic}</span>
-          </div>
-          <span style="font-size:.7rem;color:var(--muted)">${c.savedAt}</span>
-        </div>`).join('');
+      el.innerHTML = clients.map((c,i)=>{
+        const d = document.createElement('div');
+        d.onclick = ()=>loadCallClient(i);
+        d.style.cssText = 'display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--card2)';
+        d.innerHTML = '<div style="flex:1"><span style="color:var(--gold2);font-weight:700">'+c.name+'</span>'
+          +'<span style="color:var(--muted);font-size:.74rem;margin-left:6px">'+c.gender+' · '+(c.birth||'날짜미상')+' · '+c.topic+'</span></div>'
+          +'<span style="font-size:.7rem;color:var(--muted)">'+c.savedAt+'</span>';
+        return d.outerHTML;
+      }).join('');
     }
     el.style.display='block';
   } else {
@@ -1378,55 +1514,135 @@ async function startCall(){
     <span style="color:var(--muted);font-size:.75rem">전화 중 나온 질문을 아래 버튼으로 바로 확인하세요</span>`;
 
   document.getElementById('callReady').style.display = 'block';
+  callHistory = []; // 새 전화 시작 시 초기화
+  document.getElementById('callChatCard').style.display='none';
+  document.getElementById('callChatLog').innerHTML='';
   snack('전화상담 준비 완료 ✓');
 }
 
-async function callQ(question){
-  if(!callData.name){ snack('전화상담 정보를 먼저 입력하세요.'); return; }
+// 전화상담 빠른질문 탭 전환
+function setCqTab(idx){
+  for(let i=0;i<4;i++){
+    document.getElementById('cqTab'+i).classList.toggle('on', i===idx);
+    document.getElementById('cqPanel'+i).style.display = i===idx?'flex':'none';
+  }
+}
 
-  document.getElementById('callAnswer').innerHTML = `<div class="loading"><div class="dot-spin"><span></span><span></span><span></span></div>답변 생성 중...</div>`;
+// 대화 초기화
+function clearCallChat(){
+  callHistory = [];
+  document.getElementById('callChatLog').innerHTML='';
+  document.getElementById('callChatCard').style.display='none';
+  snack('대화 초기화됨');
+}
+
+async function callQ(question){
+  if(!question || !question.trim()){ return; }
+  if(!callData.name){ snack('전화상담 정보를 먼저 입력하세요.'); return; }
 
   const {name, gender, birth, topic} = callData;
 
-  // 사주 계산 연동
+  // 대화창 표시 + 질문 추가
+  const chatCard = document.getElementById('callChatCard');
+  const chatLog  = document.getElementById('callChatLog');
+  chatCard.style.display = 'block';
+
+  // 질문 말풍선 추가
+  const qDiv = document.createElement('div');
+  qDiv.style.cssText = 'align-self:flex-end;background:rgba(255,185,0,.15);border:1px solid rgba(255,185,0,.3);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:.83rem;max-width:85%;color:#ffd060';
+  qDiv.textContent = question;
+  chatLog.appendChild(qDiv);
+
+  // 로딩 표시
+  const loadDiv = document.createElement('div');
+  loadDiv.style.cssText = 'align-self:flex-start;color:var(--muted);font-size:.78rem;padding:6px 10px';
+  loadDiv.innerHTML = '<div class="dot-spin"><span></span><span></span><span></span></div>';
+  chatLog.appendChild(loadDiv);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  // 사주 계산
   const saju = calcSaju(birth, '', gender);
   const sajuCtx = saju
     ? `사주: 년${saju.yp}/월${saju.mp}/일${saju.dp} | 일간:${saju.ilgan} | 대운:${saju.curDaeun}(${saju.curDaeunAge}세~) | 세운:${saju.seun2026}`
     : `${callData.y}년 ${callData.m}월 ${callData.day}일생`;
 
+  // 이전 대화 컨텍스트 구성
+  const NL = String.fromCharCode(10);
+  const historyCtx = callHistory.length > 0
+    ? NL+NL+'━━━ 이전 대화 ━━━'+NL
+      + callHistory.slice(-4).map(h=>'Q: '+h.q+NL+'A: '+h.a).join(NL+NL)
+    : '';
+  // 이번 답변 각도 + 다양성
+  const _cAngle = getAngle(topic + '_call');
+  const _cMetaphor = getMetaphor();
+  const _saidWarn = getSaidTopics(callHistory);
+
+  // 재회운 전용 추가 지시
+  const isReunion = topic.includes('재회');
+  const reunionExtra = isReunion ? `
+━━━ 재회운 전용 ━━━
+• 상대방 마음 상태를 사주 대운·세운으로 구체적으로 분석
+• 재회 가능 시기를 월별로 언급 ("○월에는~", "○월 넘어가면~")
+• 매번 다른 각도에서 답변 — 이전 대화와 겹치지 않게
+• 희망적이되 현실적으로. 무조건 된다 금지.` : '';
+
   const prompt = `당신은 30년 경력 명리학 상담사 천운입니다.
-지금 ${name}님과 전화 통화 중입니다. 짧고 따뜻하게, 전화 통화체로.
+지금 ${name}님과 전화 통화 중입니다.
 
 내담자: ${name}(${gender})
 ${sajuCtx}
-주제: ${topic}
-지금 질문: "${question}"
+상담 주제: ${topic}${historyCtx}${reunionExtra}
 
-━━━ 절대 금지 ━━━
+━━━ 지금 질문 ━━━
+"${question}"
+
+━━━ 이번 답변 핵심 각도 (반드시 이 각도로만) ━━━
+${_cAngle.hint}
+비유: "${_cMetaphor}" 느낌의 비유 하나 자연스럽게.${_saidWarn}
+
+━━━ 금지 ━━━
 "나타냅니다" "의미합니다" "시사합니다" AI 보고서 말투 금지.
+이전 대화와 똑같은 답변 절대 금지.
 
 ━━━ 규칙 ━━━
 • [말풍선] 태그 3개. 각 2~3문장.
-• 위 사주 명식 그대로 사용. AI 임의계산 금지.
+• 위 사주 명식 그대로. AI 임의계산 금지.
 • 전화 통화체 — "네~", "그게요~", "있잖아요~"
-• 마지막은 따뜻한 응원으로 마무리.`;
+• 질문에 직접 답하고, 마지막은 따뜻하게.`;
 
   try{
     const txt = await ai(prompt, 4096);
     const bubs = parseBubs(txt);
-    const wrap = document.getElementById('callAnswer');
-    wrap.innerHTML = '';
+
+    // 로딩 제거
+    chatLog.removeChild(loadDiv);
+
+    // 답변 말풍선 누적
+    const ansDiv = document.createElement('div');
+    ansDiv.style.cssText = 'align-self:flex-start;display:flex;flex-direction:column;gap:8px;width:100%';
     bubs.forEach((b,i)=>{
-      const div = document.createElement('div');
-      div.className = 'bub';
-      div.style.paddingTop = '20px';
-      div.innerHTML = `<span class="bub-num">${i+1}</span>${b.replace(/\n/g,'<br>')}
+      const bDiv = document.createElement('div');
+      bDiv.className = 'bub';
+      bDiv.style.paddingTop = '20px';
+      const NL = String.fromCharCode(10);
+      bDiv.innerHTML = `<span class="bub-num">${i+1}</span>${b.split(NL).join('<br>')}
         <button class="bub-copy" onclick="navigator.clipboard.writeText(this.previousSibling.textContent).then(()=>snack('복사됨 ✓'))">복사</button>`;
-      wrap.appendChild(div);
+      ansDiv.appendChild(bDiv);
     });
+    chatLog.appendChild(ansDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    // 대화 기록 저장 (최근 8개만 유지)
+    callHistory.push({q: question, a: bubs.join(' ')});
+    if(callHistory.length > 8) callHistory.shift();
+
     document.getElementById('callCustomQ').value = '';
   } catch(e){
-    document.getElementById('callAnswer').innerHTML = `<div style="color:var(--red);padding:10px;font-size:.82rem">오류: ${e.message}</div>`;
+    chatLog.removeChild(loadDiv);
+    const errDiv = document.createElement('div');
+    errDiv.style.cssText = 'color:var(--red);font-size:.8rem;padding:8px';
+    errDiv.textContent = '오류: ' + e.message;
+    chatLog.appendChild(errDiv);
   }
 }
 
